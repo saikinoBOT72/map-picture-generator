@@ -499,6 +499,11 @@ input[type=range]::-moz-range-thumb { width: 16px; height: 16px; border-radius: 
     <section data-sec="style">
       <h2><svg class="i"><use href="#i-palette"/></svg>見た目</h2>
       <div class="field">
+        <div class="field-label">形</div>
+        <div class="seg" id="shapeSeg"></div>
+        <div class="hint" id="shapeHint"></div>
+      </div>
+      <div class="field">
         <div class="field-label">フチの色</div>
         <div class="swatches" id="rimSwatches"></div>
       </div>
@@ -590,7 +595,7 @@ input[type=range]::-moz-range-thumb { width: 16px; height: 16px; border-radius: 
  * アプリの基本情報（公開するたびに APP_VERSION と version.json の version を同じ番号に上げる）
  * ======================================================= */
 const APP_ID = 'tabitica';      // 保存領域の名前（英小文字）
-const APP_VERSION = '1.1.0';
+const APP_VERSION = '1.2.0';
 
 /* =========================================================
  * 都道府県の形（tools/prep-map.mjs で作る）
@@ -751,6 +756,7 @@ function setNameOf(prefs) {
  * ======================================================= */
 const DEFAULT_DOC = {
   sets: [],    // { id, name, prefs: [県の番号], size: 全体の長い辺(mm), slots: { 県の番号: { photo, tx, ty, s, r } } }
+  shape: 'easy',   // 形: easy（切りやすく丸める）/ normal / real
   paper: '2L',
   rimColor: 'white',
   rim: 0.4,
@@ -821,16 +827,9 @@ const rimOf = d => (RIM_COLORS.find(c => c.id === d.rimColor) || RIM_COLORS[0]).
 /* =========================================================
  * 切り抜き1つの形と大きさ（mm）。縮尺はまとまりで決まり、フチは内側（外の形 = 県の形）
  * ======================================================= */
-const pathCache = new Map();
 function pieceGeom(set, pref) {
-  const k = setK(set), minKm = MIN_ISLAND_MM / k;
-  // 印刷して小さすぎる島は省く（いちばん大きい島は残す）
-  const polys = PREF[pref].polys.filter((q, j) => j === 0 || q.size >= minKm);
-  const bb = bbOf(polys);
-  const key = `${pref}|${polys.length}`;
-  let path = pathCache.get(key);
-  if (!path) { if (pathCache.size > 300) pathCache.clear(); path = pathOf(polys); pathCache.set(key, path); }
-  return { polys, bb, k, path, W: (bb[2] - bb[0]) * k, H: (bb[3] - bb[1]) * k };
+  const k = setK(set), sh = shapesOf(set)[pref], bb = sh.bb;
+  return { bb, k, path: sh.path, W: (bb[2] - bb[0]) * k, H: (bb[3] - bb[1]) * k };
 }
 // 写真の置き方（km の座標で）。形の外枠を覆う大きさを 1 として s 倍
 function photoXform(slot, g, iw, ih) {
@@ -884,8 +883,9 @@ function drawLayout(c, L, v, o) {
     c.globalAlpha = 1;
   }
   for (const i of L.prefs) {
-    const [dx, dy] = L.off[i], path = prefPaths[i];
-    T(dx, dy);
+    // まとまりの地図は切りやすくした形（位置込み）、県を選ぶ画面は元の形
+    const sh = o.set ? shapesOf(o.set)[i] : null, path = sh ? sh.path : prefPaths[i];
+    if (sh) T(0, 0); else T(L.off[i][0], L.off[i][1]);
     const slot = o.set && o.set.slots[i], ph = slot && photos.get(slot.photo);
     if (ph && ph.img) {
       const g = pieceGeom(o.set, i), xf = photoXform(slot, g, ph.img.width, ph.img.height);
@@ -904,9 +904,200 @@ function drawLayout(c, L, v, o) {
     c.strokeStyle = theme.line; c.lineWidth = (o.thin ? 0.5 : 0.8) * px; c.stroke(path);
   }
   if (o.sel >= 0 && L.prefs.includes(o.sel)) {
-    T(L.off[o.sel][0], L.off[o.sel][1]);
-    c.strokeStyle = theme.accent; c.lineWidth = 2.2 * px; c.stroke(prefPaths[o.sel]);
+    T(0, 0);
+    c.strokeStyle = theme.accent; c.lineWidth = 2.2 * px; c.stroke(shapesOf(o.set)[o.sel].path);
   }
+}
+
+/* =========================================================
+ * 切りやすい形にする（デフォルメ）
+ *  まとまりの県を同じ細かさの方眼に塗り、県ごとにぼかしてから「いちばん濃い県」で塗り分け直す。
+ *  細い岬や入り江・小さな島が消えて角が丸くなり、隣の県とは同じ境目を共有する（並べてもすき間ができない）。
+ *  丸める大きさは印刷したときの mm で決めるので、小さく印刷するほどシンプルになる。
+ *  形の座標は「まとまりの中の位置」（沖縄の枠の移動も込み）
+ * ======================================================= */
+const SHAPES = {
+  easy:   { label: 'かんたん', sigma: 3,   minPart: 8 },  // ぼかしの大きさ・残す島の大きさ（印刷の mm）
+  normal: { label: 'ふつう',   sigma: 1.4, minPart: 5 },
+  real:   { label: 'リアル',   sigma: 0,   minPart: MIN_ISLAND_MM },
+};
+const shapeCache = new Map();
+function shapesOf(set) {
+  const S = SHAPES[state.doc.shape] || SHAPES.easy;
+  // 縮尺は 5% きざみでまとめて計算し直しを減らす（大きさのスライダーを動かしている間も軽く）
+  const step = Math.log(1.05), k = Math.exp(Math.round(Math.log(setK(set)) / step) * step);
+  const key = `${set.prefs.join(',')}|${state.doc.shape}|${k.toFixed(6)}`;
+  let out = shapeCache.get(key);
+  if (out) return out;
+  const L = layoutOf(set.prefs);
+  out = S.sigma ? smoothShapes(L, S.sigma / k, S.minPart / k) : realShapes(L, S.minPart / k);
+  if (shapeCache.size > 40) shapeCache.delete(shapeCache.keys().next().value);
+  shapeCache.set(key, out);
+  return out;
+}
+function finishShape(rings) {
+  const path = new Path2D(), bb = [Infinity, Infinity, -Infinity, -Infinity];
+  for (const r of rings) {
+    path.moveTo(r[0], r[1]);
+    for (let j = 2; j < r.length; j += 2) path.lineTo(r[j], r[j + 1]);
+    path.closePath();
+    for (let j = 0; j < r.length; j += 2) { bb[0] = Math.min(bb[0], r[j]); bb[1] = Math.min(bb[1], r[j + 1]); bb[2] = Math.max(bb[2], r[j]); bb[3] = Math.max(bb[3], r[j + 1]); }
+  }
+  return { rings, path, bb };
+}
+// リアル: 元の形のまま（印刷して小さすぎる島だけ省く）
+function realShape(L, i, minKm) {
+  const [dx, dy] = L.off[i];
+  const rings = [];
+  PREF[i].polys.forEach((q, j) => { if (j === 0 || q.size >= minKm) for (const r of q.rings) rings.push(r.map((v, n) => v + (n % 2 ? dy : dx))); });
+  return finishShape(rings);
+}
+function realShapes(L, minKm) { const out = {}; for (const i of L.prefs) out[i] = realShape(L, i, minKm); return out; }
+
+// 箱ぼかし（横と縦を3回ずつで、ほぼガウスぼかし）。範囲 [x0,x1)×[y0,y1) だけ
+function blurRegion(a, W, x0, y0, x1, y1, r) {
+  const n = Math.max(x1 - x0, y1 - y0), tmp = new Float32Array(n), d = 2 * r + 1;
+  for (let pass = 0; pass < 3; pass++) {
+    for (let y = y0; y < y1; y++) {
+      const o = y * W;
+      let s = 0;
+      for (let x = x0 - r; x <= x0 + r; x++) if (x >= x0 && x < x1) s += a[o + x];
+      for (let x = x0; x < x1; x++) {
+        tmp[x - x0] = s / d;
+        const out = x - r, inn = x + r + 1;
+        if (out >= x0) s -= a[o + out];
+        if (inn < x1) s += a[o + inn];
+      }
+      for (let x = x0; x < x1; x++) a[o + x] = tmp[x - x0];
+    }
+    for (let x = x0; x < x1; x++) {
+      let s = 0;
+      for (let y = y0 - r; y <= y0 + r; y++) if (y >= y0 && y < y1) s += a[y * W + x];
+      for (let y = y0; y < y1; y++) {
+        tmp[y - y0] = s / d;
+        const out = y - r, inn = y + r + 1;
+        if (out >= y0) s -= a[out * W + x];
+        if (inn < y1) s += a[inn * W + x];
+      }
+      for (let y = y0; y < y1; y++) a[y * W + x] = tmp[y - y0];
+    }
+  }
+}
+// 方眼の塗り分けから、ふちの線（輪）を取り出す。中が右手側になる向き（外周は時計回り、穴は反時計回り）
+function traceLabel(lab, W, id, x0, y0, x1, y1) {
+  const VW = W + 1, out = new Map();
+  const add = (a, b) => { const l = out.get(a); if (l) l.push(b); else out.set(a, [b]); };
+  const m = (x, y) => x >= x0 && y >= y0 && x < x1 && y < y1 && lab[y * W + x] === id;
+  for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++) {
+    if (lab[y * W + x] !== id) continue;
+    const v = y * VW + x;
+    if (!m(x, y - 1)) add(v, v + 1);
+    if (!m(x + 1, y)) add(v + 1, v + 1 + VW);
+    if (!m(x, y + 1)) add(v + 1 + VW, v + VW);
+    if (!m(x - 1, y)) add(v + VW, v);
+  }
+  const rings = [];
+  for (const start of out.keys()) {
+    while (out.has(start)) {
+      const pts = [];
+      let prev = -1, cur = start;
+      do {
+        const l = out.get(cur);
+        let j = 0;
+        if (l.length > 1 && prev >= 0) {
+          const dx = cur % VW - prev % VW, dy = Math.floor(cur / VW) - Math.floor(prev / VW);
+          j = l.findIndex(b => dx * (Math.floor(b / VW) - Math.floor(cur / VW)) - dy * (b % VW - cur % VW) > 0);
+          if (j < 0) j = 0;
+        }
+        const b = l.splice(j, 1)[0];
+        if (!l.length) out.delete(cur);
+        pts.push(cur % VW, Math.floor(cur / VW));
+        prev = cur; cur = b;
+      } while (cur !== start && out.has(cur));
+      if (pts.length >= 6) rings.push(pts);
+    }
+  }
+  return rings;
+}
+function ringArea(r) { let a = 0; for (let i = 0, j = r.length - 2; i < r.length; j = i, i += 2) a += (r[j] + r[i]) * (r[j + 1] - r[i + 1]); return a / 2; }
+// 点を減らす（ダグラス・ポーカー）→ 角を丸める（チャイキン）
+function simplifyRing(r, tol) {
+  const n = r.length / 2;
+  if (n < 8) return r;
+  const keep = new Uint8Array(n);
+  let far = 0, fd = -1; // 始点からいちばん遠い点で2つに分けて閉じた輪を扱う
+  for (let i = 1; i < n; i++) { const d = (r[i * 2] - r[0]) ** 2 + (r[i * 2 + 1] - r[1]) ** 2; if (d > fd) { fd = d; far = i; } }
+  keep[0] = keep[far] = 1;
+  const stack = [[0, far], [far, n]];
+  while (stack.length) {
+    const [a, b] = stack.pop();
+    const ax = r[a * 2], ay = r[a * 2 + 1], bx = r[(b % n) * 2], by = r[(b % n) * 2 + 1];
+    const len = Math.hypot(bx - ax, by - ay) || 1;
+    let mi = -1, md = tol;
+    for (let i = a + 1; i < b; i++) {
+      const d = Math.abs((bx - ax) * (ay - r[i * 2 + 1]) - (ax - r[i * 2]) * (by - ay)) / len;
+      if (d > md) { md = d; mi = i; }
+    }
+    if (mi >= 0) { keep[mi] = 1; stack.push([a, mi], [mi, b]); }
+  }
+  const o = [];
+  for (let i = 0; i < n; i++) if (keep[i]) o.push(r[i * 2], r[i * 2 + 1]);
+  return o;
+}
+function chaikin(r, times) {
+  for (let t = 0; t < times; t++) {
+    const o = [], n = r.length / 2;
+    for (let i = 0; i < n; i++) {
+      const ax = r[i * 2], ay = r[i * 2 + 1], bx = r[((i + 1) % n) * 2], by = r[((i + 1) % n) * 2 + 1];
+      o.push(ax * .75 + bx * .25, ay * .75 + by * .25, ax * .25 + bx * .75, ay * .25 + by * .75);
+    }
+    r = o;
+  }
+  return r;
+}
+function smoothShapes(L, sigmaKm, minKm) {
+  let cell = sigmaKm / 2.5;
+  const pad = sigmaKm * 4;
+  let W = Math.ceil((L.w + pad * 2) / cell), H = Math.ceil((L.h + pad * 2) / cell);
+  const MAXPX = 900_000; // 大きすぎるときは方眼を粗くする
+  if (W * H > MAXPX) { const f = Math.sqrt(W * H / MAXPX); cell *= f; W = Math.ceil((L.w + pad * 2) / cell); H = Math.ceil((L.h + pad * 2) / cell); }
+  const sig = sigmaKm / cell, r = Math.max(1, Math.round((Math.sqrt(4 * sig * sig + 1) - 1) / 2));
+  const gx = L.bb[0] - pad, gy = L.bb[1] - pad;
+  const c = document.createElement('canvas');
+  c.width = W; c.height = H;
+  const x = c.getContext('2d', { willReadFrequently: true });
+  const toGrid = i => { const [dx, dy] = L.off[i]; x.setTransform(1 / cell, 0, 0, 1 / cell, (dx - gx) / cell, (dy - gy) / cell); };
+  const alpha = () => { const d = x.getImageData(0, 0, W, H).data, a = new Float32Array(W * H); for (let p = 0; p < a.length; p++) a[p] = d[p * 4 + 3] / 255; return a; };
+  // 海: 1 - どこかの県に入っている割合
+  x.fillStyle = '#000';
+  for (const i of L.prefs) { toGrid(i); x.fill(prefPaths[i], 'evenodd'); }
+  const best = alpha();
+  for (let p = 0; p < best.length; p++) best[p] = 1 - best[p];
+  blurRegion(best, W, 0, 0, W, H, r);
+  const lab = new Int16Array(W * H).fill(-1);
+  const boxes = {};
+  for (const i of L.prefs) {
+    x.setTransform(1, 0, 0, 1, 0, 0); x.clearRect(0, 0, W, H);
+    toGrid(i); x.fill(prefPaths[i], 'evenodd');
+    const a = alpha(), [dx, dy] = L.off[i], b = PREF[i].bb, m = r * 3 + 2;
+    const bx0 = Math.max(0, Math.floor((b[0] + dx - gx) / cell) - m), by0 = Math.max(0, Math.floor((b[1] + dy - gy) / cell) - m);
+    const bx1 = Math.min(W, Math.ceil((b[2] + dx - gx) / cell) + m), by1 = Math.min(H, Math.ceil((b[3] + dy - gy) / cell) + m);
+    blurRegion(a, W, bx0, by0, bx1, by1, r);
+    for (let y = by0; y < by1; y++) for (let xx = bx0; xx < bx1; xx++) { const p = y * W + xx; if (a[p] > best[p]) { best[p] = a[p]; lab[p] = i; } }
+    boxes[i] = [bx0, by0, bx1, by1];
+  }
+  c.width = c.height = 0;
+  const out = {}, minPx = minKm / cell;
+  for (const i of L.prefs) {
+    const [bx0, by0, bx1, by1] = boxes[i];
+    const rings = traceLabel(lab, W, i, bx0, by0, bx1, by1).map(pr => ({ pr, area: ringArea(pr), size: (() => { let a = Infinity, b = Infinity, cc = -Infinity, d = -Infinity; for (let j = 0; j < pr.length; j += 2) { a = Math.min(a, pr[j]); b = Math.min(b, pr[j + 1]); cc = Math.max(cc, pr[j]); d = Math.max(d, pr[j + 1]); } return Math.max(cc - a, d - b); })() }));
+    const outers = rings.filter(q => q.area < 0).sort((p, q) => q.size - p.size); // 画面の向きでは時計回りが負
+    if (!outers.length) { out[i] = realShape(L, i, minKm); continue; }
+    // 穴（丸めて閉じた湾や湖）は切れないので埋める。小さな島は省く
+    const keep = outers.filter(q => q === outers[0] || q.size >= minPx);
+    out[i] = finishShape(keep.map(q => chaikin(simplifyRing(q.pr, 1.1), 3)).map(pr => pr.map((v, n) => n % 2 ? gy + v * cell : gx + v * cell)));
+  }
+  return out;
 }
 
 /* =========================================================
@@ -1168,13 +1359,13 @@ canvas.addEventListener('wheel', e => {
 }, { passive: false });
 document.addEventListener('gesturestart', e => e.preventDefault()); // iOS のページ拡大を止める
 function hitPref(L, x, y) {
-  const v = mapView;
+  const v = mapView, sh = ui.view === 'set' && curSet() ? shapesOf(curSet()) : null;
   for (const tol of [0, 10]) {
     for (let j = L.prefs.length - 1; j >= 0; j--) {
-      const i = L.prefs[j], [dx, dy] = L.off[i];
+      const i = L.prefs[j], [dx, dy] = sh ? [0, 0] : L.off[i], path = sh ? sh[i].path : prefPaths[i];
       ctx.setTransform(dpr * v.s, 0, 0, dpr * v.s, dpr * (v.ox + dx * v.s), dpr * (v.oy + dy * v.s));
       ctx.lineWidth = tol * 2 / v.s;
-      const hit = tol ? ctx.isPointInStroke(prefPaths[i], x * dpr, y * dpr) : ctx.isPointInPath(prefPaths[i], x * dpr, y * dpr, 'evenodd');
+      const hit = tol ? ctx.isPointInStroke(path, x * dpr, y * dpr) : ctx.isPointInPath(path, x * dpr, y * dpr, 'evenodd');
       if (hit) return i;
     }
   }
@@ -1241,7 +1432,7 @@ function updateOverlay() {
 }
 const thumbCache = new Map();
 function thumbFor(set) {
-  const key = JSON.stringify([set.prefs, set.size, set.slots, state.doc.rim, state.doc.rimColor, theme.land, [...photos.values()].filter(p => p.img).length]);
+  const key = JSON.stringify([set.prefs, set.size, set.slots, state.doc.shape, state.doc.rim, state.doc.rimColor, theme.land, [...photos.values()].filter(p => p.img).length]);
   let c = thumbCache.get(set.id);
   if (c && c._key === key) return c;
   const W = 50, H = 40, r = Math.min(3, window.devicePixelRatio || 1), L = layoutOf(set.prefs);
@@ -1332,6 +1523,7 @@ function openPanel(name) {
 const sliderToSize = v => SIZE_MIN * Math.pow(SIZE_MAX / SIZE_MIN, v / 1000);
 const sizeToSlider = w => Math.round(1000 * Math.log(w / SIZE_MIN) / Math.log(SIZE_MAX / SIZE_MIN));
 $('#boardPresets').innerHTML = BOARDS.map(b => `<button data-board="${b.id}">${b.label}</button>`).join('');
+$('#shapeSeg').innerHTML = Object.entries(SHAPES).map(([k, v]) => `<button data-v="${k}">${v.label}</button>`).join('');
 $('#paperSeg').innerHTML = Object.entries(PAPERS).map(([k, p]) => `<button data-v="${k}">${p.label}</button>`).join('');
 $('#rimSwatches').innerHTML = RIM_COLORS.map(c => `<button data-rim="${c.id}" style="background:${c.c}" title="${c.label}" aria-label="フチの色: ${c.label}"></button>`).join('');
 
@@ -1370,6 +1562,8 @@ function updatePanels() {
     $('#predict').innerHTML = predictionHtml(set);
   }
   // 見た目
+  $$('#shapeSeg button').forEach(b => b.classList.toggle('on', b.dataset.v === d.shape));
+  $('#shapeHint').textContent = { easy: '細かいでこぼこや小さな島を省いて丸くします。はさみで切りやすい形です。', normal: '形をすこしだけ丸くして、とても小さな島を省きます。', real: '元の地図に近い形です。切るのはたいへんです。' }[d.shape] || '';
   $$('#rimSwatches button').forEach(b => b.classList.toggle('on', b.dataset.rim === d.rimColor));
   if (document.activeElement !== $('#rimRange')) $('#rimRange').value = d.rim;
   $('#rimOut').textContent = d.rim > 0 ? `${d.rim.toFixed(1)} mm` : 'なし';
@@ -1391,6 +1585,8 @@ $$('.panel h2').forEach(h => h.insertAdjacentHTML('beforeend', '<button class="b
 $('#panel').addEventListener('click', e => {
   const d = state.doc, set = curSet();
   if (e.target.closest('[data-close-panel]')) { activePanel = null; updatePanels(); return; }
+  const shape = e.target.closest('#shapeSeg button');
+  if (shape) { d.shape = shape.dataset.v; changed(); return; }
   const paper = e.target.closest('#paperSeg button');
   if (paper) { d.paper = paper.dataset.v; changed(); return; }
   const board = e.target.closest('[data-board]');
