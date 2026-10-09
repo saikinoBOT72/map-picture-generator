@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<title>プライバシーポリシー</title>
+<style>
+:root {
+  --bg: #F5F5F7; --surface: #ffffff; --border: #ECECEF; --text: #3E383B; --muted: #8C868A; --accent: #DB7A92;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #211C1E; --surface: #2A2326; --border: #3B3236; --text: #F6EDEF; --muted: #B5A5AA; --accent: #F2A7B5;
+    color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font: 15px/1.8 system-ui, -apple-system, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic UI", "Meiryo", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+main { max-width: 720px; margin: 0 auto; padding: 24px 16px 64px; }
+.back { display: inline-flex; align-items: center; gap: 6px; color: var(--accent); text-decoration: none; font-weight: 600; font-size: 14px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px 22px; margin-top: 16px; }
+h1 { font-size: 22px; margin: 0 0 4px; line-height: 1.4; }
+.date { color: var(--muted); font-size: 13px; margin: 0 0 20px; }
+.summary { background: var(--bg); border-radius: 12px; padding: 14px 16px; margin-bottom: 8px; }
+.summary strong { display: block; margin-bottom: 4px; }
+.summary ul { margin: 0; padding-left: 1.3em; }
+h2 { font-size: 16px; margin: 28px 0 6px; padding-top: 4px; border-top: 1px solid var(--border); padding-top: 20px; }
+p, li { margin: 6px 0; }
+ul { padding-left: 1.3em; }
+code { font-size: 13px; background: var(--bg); padding: 1px 6px; border-radius: 6px; }
+</style>
+</head>
+<body>
+<!-- Tabitica のプライバシーポリシー（〜tica シリーズ共通のひな形をもとに作成） -->
+<main>
+  <a class="back" href="index.html">← アプリに戻る</a>
+  <div class="card">
+    <h1>プライバシーポリシー</h1>
+    <p class="date">Tabitica（タビチカ。写真を都道府県の形に切り抜く印刷用画像の作成ツール）／ 制定日: 2026年10月9日</p>
+
+    <div class="summary">
+      <strong>要点</strong>
+      <ul>
+        <li>選んだ写真は、あなたの端末のブラウザの中だけで処理されます。</li>
+        <li>「前回の続きから」再開できるよう、写真と編集の内容をこの端末のブラウザ内にだけ保存します。</li>
+        <li>写真や作成した画像を、運営者や第三者のサーバーへ送信することはありません。</li>
+        <li>アクセス解析、広告、トラッキング用の Cookie は使っていません。</li>
+      </ul>
+    </div>
+
+    <h2>1. 取り扱う情報</h2>
+    <p>本ツールが扱うのは、あなたが選択した写真ファイルと、選んだ都道府県・地図の大きさ・フチなどの設定、切り抜きに入れる「ひとこと」の文字だけです。氏名、メールアドレス、位置情報などの個人情報を入力・収集する機能はありません。</p>
+
+    <h2>2. 写真の取り扱い</h2>
+    <ul>
+      <li>写真の読み込み、縮小表示、都道府県の形での切り抜き・移動・拡大・回転、画像の書き出しは、すべてブラウザ内の処理（JavaScript と Canvas）で完結します。</li>
+      <li>次に開いたときに「前回の続きから」再開できるよう、選んだ写真と編集の内容（都道府県・大きさ・写真の位置や拡大・回転・ひとことなど）を、この端末のブラウザ内の保存領域（IndexedDB）に保存します。保存先は端末の中だけで、外部へ送ることはありません。</li>
+      <li>保存した内容は、タイトル画面で「最初から」を選ぶと削除されます。ブラウザのサイトデータを消去したときも削除されます。ブラウザによっては、しばらく使わないと自動で削除されることがあります。</li>
+      <li>写真に含まれる撮影日時や位置情報などのメタデータ（Exif）を読み取って外部へ送ることはありません。書き出した画像にこれらのメタデータは引き継がれません。</li>
+    </ul>
+
+    <h2>3. 通信を行わない仕組み</h2>
+    <p>本ツールのプログラムには、写真や画像を外部へ送信する処理が含まれていません。外部のフォント、スクリプト、画像、アクセス解析なども読み込んでいません。</p>
+    <p>さらに、外部のサイトとの通信を禁止するセキュリティ設定（Content Security Policy）を入れているため、仮にプログラムがほかのサイトへ通信しようとしてもブラウザがブロックします。claude.ai 上で公開している版では、この設定の代わりに claude.ai 側の配信設定が適用されます。</p>
+    <p>例外として、新しいバージョンが出ているかを確かめるために、タイトル画面でアプリと同じ場所にある <code>version.json</code>（バージョン番号と更新内容だけが書かれた小さなファイル）を読み込みます。このとき写真や編集内容は一切送りません。HTML ファイルを端末に保存して直接開いた場合は、この確認も行いません。</p>
+
+    <h2>4. 端末に保存する情報</h2>
+    <ul>
+      <li>「印刷のずれを直す」に入れた長さ（用紙ごと。ブラウザの <code>localStorage</code>）</li>
+      <li>「前回の続きから」のための写真と編集の内容（ブラウザの IndexedDB。2章を参照）</li>
+    </ul>
+    <p>どちらも端末の外へは送られません。ブラウザのサイトデータを消去すると削除されます。</p>
+
+    <h2>5. 共有・保存について</h2>
+    <p>書き出した画像の「ダウンロード」「共有・保存」は、端末の保存機能や OS の共有メニュー（claude.ai 上の版ではその保存機能）を呼び出すだけです。共有先のアプリやサービスでの取り扱いは、それぞれの提供元のポリシーに従います。</p>
+
+    <h2>6. ホスティング事業者のアクセスログ</h2>
+    <p>本ツールをウェブ上で公開している場合、ページの配信元（ホスティング事業者）が、一般的なウェブサイトと同様に IP アドレスやブラウザの種類などのアクセスログを記録することがあります。これは HTML ファイルを配信する際のもので、写真の内容は含まれません。ログの取り扱いは各事業者のポリシーに従います。HTML ファイルを端末に保存して開いた場合は、この配信も発生しません。</p>
+
+    <h2>7. 免責事項</h2>
+    <ul>
+      <li>本ツールは現状のまま提供します。印刷の仕上がり（色味、トリミング位置、サイズの誤差など）は、プリンターや写真店の設定によって変わることがあります。</li>
+      <li>都道府県の形は、地図データを簡略化したものです。細かい海岸線や小さな島は省いています。</li>
+      <li>本ツールの利用によって生じた損害について、運営者は責任を負いかねます。</li>
+    </ul>
+
+    <h2>8. 地図データの出典</h2>
+    <p>都道府県の形は、「国土数値情報（行政区域データ）」（国土交通省）を加工して作成しました（加工にはスマートニュース メディア研究所が公開している簡略化データを利用しています）。</p>
+
+    <h2>9. ポリシーの変更</h2>
+    <p>内容を変更する場合は、このページを更新し、上部の日付を改めます。</p>
+
+    <h2>10. お問い合わせ</h2>
+    <p>本ポリシーに関するお問い合わせは、本ツールの GitHub リポジトリ（saikinobot72/map-picture-generator）の Issue からお寄せください。</p>
+  </div>
+</main>
+</body>
+</html>
