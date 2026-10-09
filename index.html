@@ -171,16 +171,20 @@ svg.i { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-widt
 .chip .muted { color: var(--muted); font-weight: 600; }
 .chip svg.i { width: 16px; height: 16px; }
 .chip.icon { width: 34px; padding: 0; justify-content: center; }
+.chip .muted { margin-left: 2px; }
+#pickOk { height: 34px; border-radius: 999px; padding: 0 16px; box-shadow: var(--shadow); }
 .chip.warn { background: #FFF4D6; color: #8A6514; }
-:root[data-theme="dark"] .chip.warn { background: #4A3D1E; color: #F7D27A; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .chip.warn { background: #4A3D1E; color: #F7D27A; } }
+:root[data-theme="dark"] .chip .muted { margin-left: 2px; }
+#pickOk { height: 34px; border-radius: 999px; padding: 0 16px; box-shadow: var(--shadow); }
+.chip.warn { background: #4A3D1E; color: #F7D27A; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .chip .muted { margin-left: 2px; }
+#pickOk { height: 34px; border-radius: 999px; padding: 0 16px; box-shadow: var(--shadow); }
+.chip.warn { background: #4A3D1E; color: #F7D27A; } }
 .pref-select { position: relative; }
+.pref-select select:disabled { pointer-events: none; }
 .pref-select select { position: absolute; inset: 0; opacity: 0; width: 100%; cursor: pointer; font-size: 16px; }
 .stage-tools { position: absolute; left: 12px; right: 12px; bottom: 88px; display: flex; justify-content: center; align-items: center; gap: 6px; z-index: 2; pointer-events: none; }
 .stage-tools > * { pointer-events: auto; }
-.stage-tools .seg { box-shadow: var(--shadow); background: var(--surface); }
-.stage-tools .seg button { padding: 0 10px; }
-.stage-tools .seg button.on { background: var(--accent); color: var(--accent-ink); box-shadow: none; }
 .stage-tools .btn { box-shadow: var(--shadow); border-color: transparent; }
 @media (max-width: 400px) { .stage-tools .btn .lbl { display: none; } .stage-tools .btn.has-lbl { width: 38px; padding: 0; } }
 .stage-center { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 1; }
@@ -189,7 +193,24 @@ svg.i { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-widt
   background: rgba(24,24,30,.82); color: #fff; font-size: 12.5px; font-weight: 600; padding: 7px 12px; border-radius: 10px; white-space: nowrap; }
 [hidden] { display: none !important; }
 
-/* 切り抜きの一覧（作業エリアの下） */
+/* どこの地図をつくるか */
+.chooser { position: absolute; inset: 0 0 80px; z-index: 3; display: grid; place-items: center; padding: 16px; overflow-y: auto; }
+.chooser-card { width: min(420px, 100%); background: var(--surface); border-radius: 16px; box-shadow: var(--shadow); padding: 18px; display: flex; flex-direction: column; gap: 16px; }
+.chooser h3 { margin: 0; font-size: 17px; font-weight: 800; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.chooser-sub { margin: -8px 0 0; font-size: 12.5px; color: var(--muted); line-height: 1.6; }
+.chooser .lbl { font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
+.choice-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.choice-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.choice { height: 42px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface-2); font-weight: 700; font-size: 13.5px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; white-space: nowrap; padding: 0 6px; }
+.choice:hover { border-color: var(--accent-strong); }
+.choice svg.i { width: 17px; height: 17px; color: var(--accent-strong); }
+.select { width: 100%; height: 42px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-2); padding: 0 10px; font-size: 16px; font-weight: 600; }
+.set-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.set-title { font-size: 16px; font-weight: 800; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#delSetBtn { color: var(--muted); }
+#delSetBtn.danger { color: #fff; }
+
+/* 作った地図の一覧（作業エリアの下） */
 .strip { position: absolute; left: 0; right: 0; bottom: 0; height: 80px; z-index: 2;
   display: flex; gap: 8px; align-items: center; padding: 8px 12px; overflow-x: auto; overscroll-behavior-x: contain;
   background: color-mix(in srgb, var(--stage) 88%, transparent); border-top: 1px solid var(--border); scrollbar-width: thin; }
@@ -198,12 +219,9 @@ svg.i { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-widt
 .strip-item canvas { width: 50px; height: 40px; display: block; }
 .strip-item span { font-size: 10px; font-weight: 700; line-height: 16px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .strip-item.on { border-color: var(--accent-strong); }
-.strip-item .badge { position: absolute; top: -4px; right: -4px; background: var(--blue); color: #fff; font-size: 9.5px; font-weight: 800; border-radius: 999px; padding: 0 5px; line-height: 15px; }
 .strip-add { flex: none; width: 60px; height: 62px; border-radius: 12px; border: 0; background: transparent; color: var(--muted); position: relative;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 10px; font-weight: 700; }
 .strip-add svg.dash { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-.strip-add select { position: absolute; inset: 0; opacity: 0; width: 100%; cursor: pointer; font-size: 16px; }
-.strip-empty { color: var(--muted); font-size: 12px; line-height: 1.5; }
 
 /* ---------- 設定パネル / シート ---------- */
 .panel {
@@ -259,11 +277,9 @@ input[type=range]::-moz-range-thumb { width: 16px; height: 16px; border-radius: 
 .hint { font-size: 12px; color: var(--muted); margin-top: 6px; line-height: 1.55; }
 .num-in { display: inline-flex; align-items: baseline; gap: 4px; color: var(--text); font-weight: 700; }
 .num-in input { width: 64px; height: 30px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-2); padding: 0 8px; text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; font-size: 14px; }
-.text-in { width: 100%; height: 38px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-2); padding: 0 12px; font-size: 16px; }
 .presets { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
 .presets button { height: 28px; padding: 0 10px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); font-size: 12px; font-weight: 600; color: var(--text); }
 .presets button.on { border-color: var(--accent-strong); color: var(--accent-strong); background: var(--accent-soft); }
-.sub-h { font-size: 13px; font-weight: 800; margin: 18px 0 10px; padding-top: 14px; border-top: 1px solid var(--border); }
 .swatches { display: flex; gap: 10px; }
 .swatches button { width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--surface); box-shadow: 0 0 0 1px var(--border); padding: 0; }
 .swatches button.on { box-shadow: 0 0 0 2px var(--accent-strong); }
@@ -401,68 +417,83 @@ input[type=range]::-moz-range-thumb { width: 16px; height: 16px; border-radius: 
   <main class="stage" id="stage" aria-label="作業エリア">
     <canvas id="view"></canvas>
 
-    <!-- 地図のとき -->
-    <div class="stage-top" id="mapTop">
-      <button class="chip" id="mapChip" title="日本地図の大きさを変える"><svg class="i"><use href="#i-ruler"/></svg><span id="mapChipText"></span></button>
+    <!-- まとまりの地図 -->
+    <div class="stage-top" id="setTop" hidden>
+      <button class="chip" id="setChip" title="大きさを変える"><b id="setName"></b><span class="muted" id="setSize"></span></button>
       <span class="chip" id="countChip"></span>
       <div class="grow"></div>
       <button class="chip icon" id="fitBtn" title="全体を表示" aria-label="全体を表示" hidden><svg class="i"><use href="#i-fit"/></svg></button>
     </div>
-    <div class="stage-hint" id="mapHint">県をタップして、写真を入れよう</div>
+    <div class="stage-hint" id="setHint" hidden>県をタップして、写真を入れよう</div>
 
-    <!-- 1つの県を編集しているとき -->
+    <!-- 1つの県 -->
     <div class="stage-top" id="pieceTop" hidden>
       <button class="chip icon" id="backBtn" title="地図にもどる" aria-label="地図にもどる"><svg class="i"><use href="#i-back"/></svg></button>
-      <label class="chip pref-select"><b id="prefName"></b><svg class="i"><use href="#i-down"/></svg><select id="prefSelect" aria-label="県を変える"></select></label>
+      <label class="chip pref-select" id="prefChip"><b id="prefName"></b><svg class="i" id="prefDown"><use href="#i-down"/></svg><select id="prefSelect" aria-label="県を変える"></select></label>
       <div class="grow"></div>
       <span class="chip warn" id="lowresChip" hidden title="写真を大きくしすぎています。印刷が粗くなるかもしれません"><svg class="i"><use href="#i-alert"/></svg>粗い</span>
-      <button class="chip" id="sizeChip" title="大きさを変える"></button>
+      <button class="chip" id="pieceSize" title="大きさを変える"></button>
     </div>
     <div class="stage-center" id="pickCenter" hidden>
       <button class="btn primary pick-btn" id="pickBtn"><svg class="i"><use href="#i-image"/></svg>写真を選ぶ</button>
     </div>
     <div class="stage-tools" id="pieceTools" hidden>
-      <div class="seg" id="modeSeg2"><button data-v="map">地図サイズ</button><button data-v="big">大きめ</button></div>
-      <button class="btn has-lbl" id="photoBtn" title="写真を変える"><svg class="i"><use href="#i-image"/></svg><span class="lbl">写真</span></button>
+      <button class="btn has-lbl" id="photoBtn" title="写真を変える"><svg class="i"><use href="#i-image"/></svg><span class="lbl">写真を変える</span></button>
       <button class="btn icon-only" id="rotBtn" title="90°回す" aria-label="90°回す"><svg class="i"><use href="#i-rotate"/></svg></button>
       <button class="btn icon-only" id="resetBtn" title="写真を形に合わせる" aria-label="写真を形に合わせる"><svg class="i"><use href="#i-fit"/></svg></button>
-      <button class="btn icon-only" id="delBtn" title="この切り抜きを削除" aria-label="この切り抜きを削除"><svg class="i"><use href="#i-trash"/></svg></button>
+      <button class="btn icon-only" id="unsetBtn" title="写真を外す" aria-label="写真を外す"><svg class="i"><use href="#i-trash"/></svg></button>
     </div>
 
-    <div class="strip" id="strip" aria-label="作った切り抜き"></div>
+    <!-- 県を選ぶ -->
+    <div class="stage-top" id="pickTop" hidden>
+      <span class="chip"><b id="pickCount"></b></span>
+      <div class="grow"></div>
+      <button class="chip" id="pickCancel">やめる</button>
+      <button class="btn primary small" id="pickOk">決定</button>
+    </div>
+    <div class="stage-hint" id="pickHint" hidden>県をタップして選ぶ（もう一度で外す）</div>
+
+    <!-- どこの地図をつくるか -->
+    <div class="chooser" id="chooser" hidden>
+      <div class="chooser-card">
+        <h3>どこの地図をつくる？<button class="btn ghost small icon-only" id="chooserClose" aria-label="閉じる"><svg class="i"><use href="#i-x"/></svg></button></h3>
+        <p class="chooser-sub">選んだ県はみんな同じ縮尺で切り抜くので、並べて貼るとその地図になります。</p>
+        <div>
+          <div class="lbl">地方</div>
+          <div class="choice-grid" id="regionGrid"></div>
+        </div>
+        <div>
+          <div class="lbl">1つの県だけ（大きく切り抜く）</div>
+          <select class="select" id="onePref" aria-label="1つの県を選ぶ"></select>
+        </div>
+        <div class="choice-row">
+          <button class="choice" id="pickFree"><svg class="i"><use href="#i-map"/></svg>地図で県を選ぶ</button>
+          <button class="choice" id="pickAll">日本全国</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="strip" id="strip" aria-label="作った地図"></div>
   </main>
 
   <aside class="panel" id="panel">
     <section data-sec="size">
       <h2><svg class="i"><use href="#i-ruler"/></svg>大きさ</h2>
-      <div class="field">
-        <div class="field-label">日本地図の大きさ（横幅）<span class="num-in"><input type="number" id="mapCm" inputmode="decimal" step="0.1" min="12" max="150" aria-label="日本地図の横幅（cm）">cm</span></div>
-        <input type="range" id="mapRange" min="0" max="1000" step="1" aria-label="日本地図の大きさ">
-        <div class="presets" id="mapPresets"></div>
-      </div>
-      <div class="field"><div class="predict" id="predict"></div></div>
-
-      <div id="pieceOpts" hidden>
-        <div class="sub-h" id="pieceOptsTitle"></div>
+      <div id="sizeBody">
+        <div class="field set-head">
+          <div class="set-title" id="setTitle"></div>
+          <button class="btn small" id="repickBtn">県を選び直す</button>
+        </div>
         <div class="field">
-          <div class="seg" id="modeSeg"><button data-v="map">地図サイズ</button><button data-v="big">大きめ</button></div>
-          <div class="hint" id="modeHint"></div>
+          <div class="field-label"><span id="sizeLabel">全体の大きさ（長い辺）</span><span class="num-in"><input type="number" id="sizeCm" inputmode="decimal" step="0.1" min="5" max="150" aria-label="大きさ（cm）">cm</span></div>
+          <input type="range" id="sizeRange" min="0" max="1000" step="1" aria-label="大きさ">
+          <div class="presets" id="boardPresets"></div>
+          <div class="hint">ボタンは、その台紙に余白 8mm で収まる大きさです。</div>
         </div>
-        <div class="field" id="bigField">
-          <div class="field-label">大きさ（長い辺）<output id="bigOut"></output></div>
-          <input type="range" id="bigRange" min="30" max="200" step="1" aria-label="大きめの大きさ">
-          <div class="presets"><button id="bigFill">用紙いっぱい</button></div>
-        </div>
-        <div class="field row" id="islandRow">
-          <div><div class="label">離れた島も入れる</div><div class="sub" id="islandSub"></div></div>
-          <label class="switch"><input type="checkbox" id="islandChk" aria-label="離れた島も入れる"><span class="track"></span></label>
-        </div>
-        <div class="field" id="captionField">
-          <div class="field-label">ひとこと（県名の下に入ります）</div>
-          <input class="text-in" type="text" id="captionInput" maxlength="24" placeholder="例: 2026.8 家族旅行" autocomplete="off">
-        </div>
+        <div class="field"><div class="predict" id="predict"></div></div>
+        <div class="field"><button class="btn small" id="delSetBtn"><svg class="i"><use href="#i-trash"/></svg>この地図を削除</button></div>
       </div>
-      <div class="hint" id="pieceOptsEmpty">地図の県をタップすると、その県の切り抜きの設定がここに出ます。</div>
+      <div class="hint" id="sizeEmpty">まず、どこの地図をつくるか選んでください。</div>
     </section>
 
     <section data-sec="style">
@@ -472,21 +503,13 @@ input[type=range]::-moz-range-thumb { width: 16px; height: 16px; border-radius: 
         <div class="swatches" id="rimSwatches"></div>
       </div>
       <div class="field">
-        <div class="field-label">地図サイズのフチ（内側）<output data-out="rimMap"></output></div>
-        <input type="range" min="0" max="2" step="0.1" data-bind="rimMap" aria-label="地図サイズのフチの太さ">
-        <div class="hint">並べて貼ったとき、県の境目が線になります。外側の形は変わらないので、ぴったり合います。</div>
-      </div>
-      <div class="field">
-        <div class="field-label">大きめのフチ（外側）<output data-out="rimBig"></output></div>
-        <input type="range" min="0" max="8" step="0.5" data-bind="rimBig" aria-label="大きめのフチの太さ">
+        <div class="field-label">フチの太さ <output id="rimOut"></output></div>
+        <input type="range" min="0" max="3" step="0.1" id="rimRange" aria-label="フチの太さ">
+        <div class="hint">フチは内側に入ります。外側は県の形のままなので、並べるとぴったり合います。</div>
       </div>
       <div class="field row">
         <div><div class="label">切り取り線</div><div class="sub">切る場所に細い線を入れます</div></div>
-        <label class="switch"><input type="checkbox" data-bind="cutLine" aria-label="切り取り線"><span class="track"></span></label>
-      </div>
-      <div class="field row">
-        <div><div class="label">県名を入れる</div><div class="sub">大きめの切り抜きの下に入ります</div></div>
-        <label class="switch"><input type="checkbox" data-bind="label" aria-label="県名を入れる"><span class="track"></span></label>
+        <label class="switch"><input type="checkbox" id="cutChk" aria-label="切り取り線"><span class="track"></span></label>
       </div>
     </section>
 
@@ -494,18 +517,13 @@ input[type=range]::-moz-range-thumb { width: 16px; height: 16px; border-radius: 
       <h2><svg class="i"><use href="#i-printer"/></svg>印刷</h2>
       <div class="field">
         <div class="field-label">用紙</div>
-        <div class="seg" data-seg="paper" id="paperSeg"></div>
+        <div class="seg" id="paperSeg"></div>
         <div class="hint" id="paperHint"></div>
-      </div>
-      <div class="field">
-        <div class="field-label">印刷のずれを直す<span class="num-in"><input type="number" id="calibInput" inputmode="decimal" step="0.1" min="25" max="35" aria-label="印刷した目盛りの長さ（mm）">mm</span></div>
-        <div class="hint">印刷すると用紙の下に 3cm の目盛りが入ります。定規で測って 30mm でなかったら、測った長さを入れてください。次の書き出しから直ります（用紙ごとに覚えます）。</div>
       </div>
       <div class="field"><button class="btn primary block" id="mainActionBtn2"><svg class="i"><use href="#i-download"/></svg>書き出す</button></div>
       <div class="field">
-        <div class="note"><svg class="i"><use href="#i-alert"/></svg>
-          <div>地図サイズの切り抜きは、<b>同じ用紙・同じ設定</b>で印刷すると並べたときにぴったり合います。コンビニのプリントで写真が拡大・縮小される設定（フチなし・自動補正など）があれば、目盛りで確かめてください。</div>
-        </div>
+        <div class="field-label">印刷のずれを直す<span class="num-in"><input type="number" id="calibInput" inputmode="decimal" step="0.1" min="25" max="35" aria-label="印刷した目盛りの長さ（mm）">mm</span></div>
+        <div class="hint">用紙の下に 3cm の目盛りが入ります。印刷したものを定規で測って 30mm でなければ、測った長さを入れてください。次の書き出しから直ります（用紙ごとに覚えます）。</div>
       </div>
       <div class="field">
         <div class="note"><svg class="i"><use href="#i-lock"/></svg>
@@ -572,11 +590,11 @@ input[type=range]::-moz-range-thumb { width: 16px; height: 16px; border-radius: 
  * アプリの基本情報（公開するたびに APP_VERSION と version.json の version を同じ番号に上げる）
  * ======================================================= */
 const APP_ID = 'tabitica';      // 保存領域の名前（英小文字）
-const APP_VERSION = '1.0.0';
+const APP_VERSION = '1.1.0';
 
 /* =========================================================
  * 都道府県の形（tools/prep-map.mjs で作る）
- *  1県 = 文字列1つ。島は「|」、穴は「 」で区切る。先頭が「*」の島は「離れた島」
+ *  1県 = 文字列1つ。島は「|」、穴は「 」で区切る。先頭が「*」の島は本体から離れた島（このアプリでは使わない）
  *  座標は km（ランベルト正角円錐図法。どの県も同じ縮尺）を 0.1km 単位で差分にして詰めたもの
  * ======================================================= */
 /*MAP_DATA*/
@@ -584,11 +602,21 @@ const MAP_DATA = ["-mG7-KDDNDRTRLRLHNFDDRLHDHCVDTLELBHJLFLNDNHZBJFHXFFDXLRRRAPSJ
 /*/MAP_DATA*/
 
 const PREF_NAMES = ['北海道', '青森県', '岩手県', '宮城県', '秋田県', '山形県', '福島県', '茨城県', '栃木県', '群馬県', '埼玉県', '千葉県', '東京都', '神奈川県', '新潟県', '富山県', '石川県', '福井県', '山梨県', '長野県', '岐阜県', '静岡県', '愛知県', '三重県', '滋賀県', '京都府', '大阪府', '兵庫県', '奈良県', '和歌山県', '鳥取県', '島根県', '岡山県', '広島県', '山口県', '徳島県', '香川県', '愛媛県', '高知県', '福岡県', '佐賀県', '長崎県', '熊本県', '大分県', '宮崎県', '鹿児島県', '沖縄県'];
-const REGIONS = [['北海道・東北', 0, 7], ['関東', 7, 14], ['中部', 14, 23], ['近畿', 23, 30], ['中国', 30, 35], ['四国', 35, 39], ['九州・沖縄', 39, 47]];
-// 「離れた島」の例（設定パネルに出す）
-const FAR_NAMES = { 0: '北方領土など', 12: '伊豆諸島・小笠原諸島', 31: '隠岐諸島など', 41: '対馬・壱岐など', 45: '奄美群島など', 46: '宮古・八重山諸島など' };
+const range = (a, b) => Array.from({ length: b - a }, (_, i) => a + i);
+const ALL = range(0, 47);
 const OKINAWA = 46;
-
+// 県の一覧の見出し
+const AREAS = [['北海道', 0, 1], ['東北', 1, 7], ['関東', 7, 14], ['中部', 14, 23], ['近畿', 23, 30], ['中国', 30, 35], ['四国', 35, 39], ['九州・沖縄', 39, 47]];
+// 「地方」で選べるまとまり（九州は沖縄を入れない。沖縄は遠くて九州が小さくなるため）
+const REGIONS = [
+  { name: '東北地方', short: '東北', prefs: range(1, 7) },
+  { name: '関東地方', short: '関東', prefs: range(7, 14) },
+  { name: '中部地方', short: '中部', prefs: range(14, 23) },
+  { name: '近畿地方', short: '近畿', prefs: range(23, 30) },
+  { name: '中国地方', short: '中国', prefs: range(30, 35) },
+  { name: '四国地方', short: '四国', prefs: range(35, 39) },
+  { name: '九州地方', short: '九州', prefs: range(39, 46) },
+];
 const PAPERS = {
   L:    { label: 'L判',   w: 89,  h: 127 },
   '2L': { label: '2L判',  w: 127, h: 178 },
@@ -596,14 +624,16 @@ const PAPERS = {
   A4:   { label: 'A4',    w: 210, h: 297 },
   A3:   { label: 'A3',    w: 297, h: 420 },
 };
-// 日本地図の大きさの目安（台紙）。この中に余白 10mm で収まる幅にする
+// 台紙（スクラップブックのページ）の大きさの目安。「この台紙に収まる大きさ」のボタンになる
 const BOARDS = [
+  { id: 'PC', label: 'はがき', w: 100, h: 148 },
+  { id: 'A5', label: 'A5', w: 148, h: 210 },
+  { id: 'B5', label: 'B5', w: 182, h: 257 },
   { id: 'A4', label: 'A4', w: 210, h: 297 },
-  { id: 'B4', label: 'B4', w: 257, h: 364 },
-  { id: 'A3', label: 'A3', w: 297, h: 420 },
   { id: 'SQ', label: '30cm角', w: 305, h: 305 },
-  { id: 'A2', label: 'A2', w: 420, h: 594 },
+  { id: 'A3', label: 'A3', w: 297, h: 420 },
 ];
+const BOARD_MARGIN = 8;
 const RIM_COLORS = [
   { id: 'white', c: '#ffffff', label: '白' },
   { id: 'pink', c: '#F2A7B5', label: 'ピンク' },
@@ -611,7 +641,8 @@ const RIM_COLORS = [
   { id: 'green', c: '#A8D5A2', label: '緑' },
   { id: 'blue', c: '#9CC7E8', label: '水色' },
 ];
-const MAP_MIN = 120, MAP_MAX = 1500;   // 日本地図の横幅（mm）の範囲
+const SIZE_MIN = 50, SIZE_MAX = 1500;  // 大きさ（長い辺, mm）の範囲
+const SMALL_WARN = 15;                 // 切り抜きがこれ（mm）より小さいと注意を出す
 const MIN_ISLAND_MM = 2;               // 印刷してこれより小さい島は省く（はさみで切れないため）
 const CUT_W = 0.2;                     // 切り取り線の太さ（mm）
 const CUT_COLOR = '#C4C0C2';
@@ -620,7 +651,7 @@ const DPI = 350, MAX_EXPORT_PIXELS = 16_000_000, LOW_DPI = 150;
 const PREVIEW_MAX = 2048;
 const DETENT = 8;                      // 回転中、0/90/180/270° の前後この角度で引っかかる
 const MIN_S = 0.3, MAX_S = 12;
-const COIN = 20;                       // 1円玉の直径（mm）
+const OKI_PAD = 22;                    // 沖縄を入れる枠の余白（km）
 
 /* =========================================================
  * 形のデータを読む
@@ -642,29 +673,20 @@ function decodeRing(s) {
   }
   return pts;
 }
-const bbOfRings = (polys) => {
+function bbOf(list) {
   const b = [Infinity, Infinity, -Infinity, -Infinity];
-  for (const q of polys) { b[0] = Math.min(b[0], q.bb[0]); b[1] = Math.min(b[1], q.bb[1]); b[2] = Math.max(b[2], q.bb[2]); b[3] = Math.max(b[3], q.bb[3]); }
+  for (const q of list) { b[0] = Math.min(b[0], q.bb[0]); b[1] = Math.min(b[1], q.bb[1]); b[2] = Math.max(b[2], q.bb[2]); b[3] = Math.max(b[3], q.bb[3]); }
   return b;
-};
+}
 const PREF = MAP_DATA.map((str, i) => {
-  const polys = str.split('|').map(ps => {
-    const far = ps[0] === '*';
-    const rings = (far ? ps.slice(1) : ps).split(' ').map(decodeRing);
+  const polys = str.split('|').filter(ps => ps[0] !== '*').map(ps => {
+    const rings = ps.split(' ').map(decodeRing);
     const r = rings[0], bb = [Infinity, Infinity, -Infinity, -Infinity];
     for (let j = 0; j < r.length; j += 2) { bb[0] = Math.min(bb[0], r[j]); bb[1] = Math.min(bb[1], r[j + 1]); bb[2] = Math.max(bb[2], r[j]); bb[3] = Math.max(bb[3], r[j + 1]); }
-    return { far, rings, bb, size: Math.max(bb[2] - bb[0], bb[3] - bb[1]) };
+    return { rings, bb, size: Math.max(bb[2] - bb[0], bb[3] - bb[1]) };
   });
-  const main = polys.filter(q => !q.far);
-  return { i, name: PREF_NAMES[i], polys, main, mainBB: bbOfRings(main), hasFar: polys.some(q => q.far) };
+  return { i, name: PREF_NAMES[i], polys, bb: bbOf(polys) };
 });
-// 日本地図の枠（沖縄をのぞく本体）。地図の大きさはこの横幅で決める
-const FRAME = (() => { const b = bbOfRings(PREF.slice(0, OKINAWA).flatMap(p => p.main)); return { x0: b[0], y0: b[1], x1: b[2], y1: b[3], w: b[2] - b[0], h: b[3] - b[1] }; })();
-// 沖縄は左上の枠の中に置く（地図での表示だけ。印刷する切り抜きには関係ない）
-const OKI_PAD = 22;
-const OKI_OFF = [FRAME.x0 + OKI_PAD - PREF[OKINAWA].mainBB[0], FRAME.y0 + OKI_PAD - PREF[OKINAWA].mainBB[1]];
-const OKI_BOX = [FRAME.x0, FRAME.y0, PREF[OKINAWA].mainBB[2] - PREF[OKINAWA].mainBB[0] + OKI_PAD * 2, PREF[OKINAWA].mainBB[3] - PREF[OKINAWA].mainBB[1] + OKI_PAD * 2];
-
 function pathOf(polys) {
   const path = new Path2D();
   for (const q of polys) for (const r of q.rings) {
@@ -674,13 +696,53 @@ function pathOf(polys) {
   }
   return path;
 }
-const mainPaths = PREF.map(p => pathOf(p.main));
+const prefPaths = PREF.map(p => pathOf(p.polys));
 
 /* =========================================================
- * 大きさの計算
+ * まとまり（いっしょに並べる県）の並べ方と大きさ
+ *  県の位置は実際の地図のまま。沖縄はほかの県といっしょのとき、左上の枠に入れる
  * ======================================================= */
-const boardWidth = b => Math.max(Math.min(b.w - 20, (b.h - 20) * FRAME.w / FRAME.h), Math.min(b.h - 20, (b.w - 20) * FRAME.w / FRAME.h));
-const mapK = d => d.mapWidth / FRAME.w; // 地図サイズの縮尺（mm / km）
+const layoutCache = new Map();
+function layoutOf(prefs) {
+  const key = prefs.join(',');
+  let L = layoutCache.get(key);
+  if (L) return L;
+  const off = {};
+  for (const i of prefs) off[i] = [0, 0];
+  const withOki = prefs.length > 1 && prefs.includes(OKINAWA);
+  const others = withOki ? prefs.filter(i => i !== OKINAWA) : prefs;
+  let bb = bbOf(others.map(i => PREF[i]));
+  let inset = null;
+  if (withOki) {
+    const ob = PREF[OKINAWA].bb, w = ob[2] - ob[0] + OKI_PAD * 2, h = ob[3] - ob[1] + OKI_PAD * 2;
+    let r = [bb[0], bb[1], w, h];
+    const hit = others.some(i => { const b = PREF[i].bb; return b[0] < r[0] + w && b[2] > r[0] && b[1] < r[1] + h && b[3] > r[1]; });
+    if (hit) r = [bb[0] - w - OKI_PAD, bb[1], w, h]; // 左上があいていなければ外側の左に
+    off[OKINAWA] = [r[0] + OKI_PAD - ob[0], r[1] + OKI_PAD - ob[1]];
+    bb = [Math.min(bb[0], r[0]), Math.min(bb[1], r[1]), Math.max(bb[2], r[0] + w), Math.max(bb[3], r[1] + h)];
+    inset = r;
+  }
+  L = { prefs, off, bb, inset, w: bb[2] - bb[0], h: bb[3] - bb[1] };
+  L.long = Math.max(L.w, L.h);
+  if (layoutCache.size > 200) layoutCache.clear();
+  layoutCache.set(key, L);
+  return L;
+}
+const setK = set => set.size / layoutOf(set.prefs).long;   // 縮尺（mm / km）
+// 台紙に余白 BOARD_MARGIN で収まる長い辺（縦横どちら向きでもよい）
+function boardFit(L, b) {
+  const W = b.w - BOARD_MARGIN * 2, H = b.h - BOARD_MARGIN * 2;
+  return Math.max(Math.min(W / L.w, H / L.h), Math.min(H / L.w, W / L.h)) * L.long;
+}
+const round1 = v => Math.round(v * 10) / 10;
+function setNameOf(prefs) {
+  if (prefs.length === 47) return '日本全国';
+  if (prefs.length === 1) return PREF_NAMES[prefs[0]];
+  const key = prefs.join(',');
+  const r = REGIONS.find(r => r.prefs.join(',') === key);
+  if (r) return r.name;
+  return `${PREF_NAMES[prefs[0]]}・${PREF_NAMES[prefs[1]]}${prefs.length > 2 ? `ほか${prefs.length - 2}県` : ''}`;
+}
 
 /* =========================================================
  * アプリの状態
@@ -688,27 +750,41 @@ const mapK = d => d.mapWidth / FRAME.w; // 地図サイズの縮尺（mm / km）
  *  写真は doc に入れず fileStore に保存する（doc には写真の id だけ）
  * ======================================================= */
 const DEFAULT_DOC = {
-  mapWidth: Math.round(boardWidth(BOARDS[2]) * 10) / 10, // A3 に収まる大きさ
+  sets: [],    // { id, name, prefs: [県の番号], size: 全体の長い辺(mm), slots: { 県の番号: { photo, tx, ty, s, r } } }
   paper: '2L',
   rimColor: 'white',
-  rimMap: 0.4,
-  rimBig: 3,
+  rim: 0.4,
   cutLine: true,
-  label: true,
-  pieces: [],  // { id, pref, mode: 'map'|'big', size, islands, caption, photo, tx, ty, s, r }
 };
 const state = { doc: structuredClone(DEFAULT_DOC) };
-const ui = { view: 'map', cur: null, draft: null, sel: -1 };
+// 画面の状態（「戻る」の対象にしない）
+const ui = { set: null, view: 'set', pref: -1, sel: -1, chooser: false, pick: null, pickFor: null };
 const photos = new Map();  // id -> { blob, w, h, img(縮小版), ready }
-let pieceSeq = 0;
+let seq = 0;
+const newId = p => `${p}${Date.now().toString(36)}${(seq++).toString(36)}`;
 
 function summarize(doc) {
-  const n = doc.pieces.length;
-  if (!n) return `写真なし・日本地図 横${fmtLen(doc.mapWidth)}`;
-  const names = [...new Set(doc.pieces.map(p => PREF_NAMES[p.pref]))];
-  return `${names.slice(0, 2).join('・')}${names.length > 2 ? `ほか${names.length - 2}` : ''}（切り抜き${n}個）`;
+  if (!doc.sets.length) return 'まだ地図がありません';
+  const n = doc.sets.reduce((a, s) => a + Object.keys(s.slots).length, 0);
+  const names = doc.sets.map(s => s.name);
+  return `${names.slice(0, 2).join('・')}${names.length > 2 ? `ほか${names.length - 2}` : ''}（写真${n}枚）`;
 }
 function hasWorkIn(doc) { return JSON.stringify(doc) !== JSON.stringify(DEFAULT_DOC); }
+// 1.0.0 で保存した内容を読み込めるようにする
+function migrate(doc) {
+  if (!doc || !Array.isArray(doc.pieces)) return doc;
+  const sets = [];
+  const slot = p => ({ photo: p.photo, tx: p.tx, ty: p.ty, s: p.s, r: p.r });
+  const maps = doc.pieces.filter(p => p.mode === 'map' && p.photo);
+  if (maps.length) {
+    const L = layoutOf(ALL);
+    const s = { id: newId('s'), name: '日本全国', prefs: ALL.slice(), size: round1((doc.mapWidth || 277) / L.w * L.long), slots: {} };
+    for (const p of maps) s.slots[p.pref] = slot(p);
+    sets.push(s);
+  }
+  for (const p of doc.pieces.filter(p => p.mode === 'big' && p.photo)) sets.push({ id: newId('s'), name: PREF_NAMES[p.pref], prefs: [p.pref], size: p.size || 120, slots: { [p.pref]: slot(p) } });
+  return { paper: doc.paper, rimColor: doc.rimColor, rim: doc.rimMap ?? 0.4, cutLine: doc.cutLine, sets };
+}
 
 /* =========================================================
  * 小物
@@ -740,111 +816,96 @@ let localSettings = {};
 try { localSettings = JSON.parse(localStorage.getItem(APP_ID + '.settings') || '{}') || {}; } catch (_) { localSettings = {}; }
 function saveLocal() { try { localStorage.setItem(APP_ID + '.settings', JSON.stringify(localSettings)); } catch (_) {} }
 const calibOf = paper => clamp(+((localSettings.calib || {})[paper]) || 30, 25, 35);
+const rimOf = d => (RIM_COLORS.find(c => c.id === d.rimColor) || RIM_COLORS[0]).c;
 
 /* =========================================================
- * 切り抜き1つの形と大きさ（すべて mm）
- *  地図サイズ: 縮尺は日本地図の大きさで決まり、フチは内側（外の形 = 県の形）
- *  大きめ: 長い辺（フチ込み）を size にし、フチは外側（ステッカー風）
+ * 切り抜き1つの形と大きさ（mm）。縮尺はまとまりで決まり、フチは内側（外の形 = 県の形）
  * ======================================================= */
-const measureCtx = document.createElement('canvas').getContext('2d');
-const CANVAS_FONT = '"Hiragino Maru Gothic ProN", "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", "Meiryo", system-ui, sans-serif';
 const pathCache = new Map();
-function pieceGeom(p, d = state.doc) {
-  const pr = PREF[p.pref];
-  const big = p.mode === 'big';
-  const pad = big && d.rimBig > 0 ? d.rimBig : 0;
-  let polys = pr.polys.filter(q => !q.far || p.islands);
-  let bb = bbOfRings(polys);
-  const fit = b => (p.size - pad * 2) / Math.max(b[2] - b[0], b[3] - b[1]);
-  let k = big ? fit(bb) : mapK(d);
+function pieceGeom(set, pref) {
+  const k = setK(set), minKm = MIN_ISLAND_MM / k;
   // 印刷して小さすぎる島は省く（いちばん大きい島は残す）
-  const minKm = MIN_ISLAND_MM / k;
-  const kept = polys.filter((q, j) => j === 0 || q.size >= minKm);
-  if (kept.length !== polys.length) { polys = kept; bb = bbOfRings(polys); if (big) k = fit(bb); }
-  const sw = (bb[2] - bb[0]) * k + pad * 2, sh = (bb[3] - bb[1]) * k + pad * 2;
-  let tag = null, W = sw, H = sh;
-  const text = big ? [d.label ? pr.name : '', (p.caption || '').trim()].filter(Boolean) : [];
-  if (text.length) {
-    const font = clamp(sw * 0.055, 3.2, 9);
-    measureCtx.font = `700 ${font * 10}px ${CANVAS_FONT}`;
-    const lines = text.map((t, j) => ({ t, size: j === 0 && d.label ? font : font * 0.78 }));
-    const tw = Math.max(...lines.map(l => measureCtx.measureText(l.t).width / 10 * l.size / font)) + font * 1.6;
-    const th = lines.reduce((a, l) => a + l.size * 1.35, 0) + font * 0.8;
-    tag = { lines, w: Math.min(tw, Math.max(sw, 30)), h: th, gap: Math.max(2, pad * 0.6) };
-    W = Math.max(sw, tag.w); H = sh + tag.gap + th;
-  }
-  const key = `${p.pref}|${p.islands ? 1 : 0}|${polys.length}`;
+  const polys = PREF[pref].polys.filter((q, j) => j === 0 || q.size >= minKm);
+  const bb = bbOf(polys);
+  const key = `${pref}|${polys.length}`;
   let path = pathCache.get(key);
   if (!path) { if (pathCache.size > 300) pathCache.clear(); path = pathOf(polys); pathCache.set(key, path); }
-  return { polys, bb, k, pad, sw, sh, W, H, tag, path, big, ox: (W - sw) / 2 };
+  return { polys, bb, k, path, W: (bb[2] - bb[0]) * k, H: (bb[3] - bb[1]) * k };
 }
 // 写真の置き方（km の座標で）。形の外枠を覆う大きさを 1 として s 倍
-function photoXform(p, g, iw, ih) {
+function photoXform(slot, g, iw, ih) {
   const bb = g.bb, bw = bb[2] - bb[0], bh = bb[3] - bb[1], D = Math.max(bw, bh);
-  const rot = p.r * Math.PI / 180, c = Math.abs(Math.cos(rot)), s = Math.abs(Math.sin(rot));
+  const rot = slot.r * Math.PI / 180, c = Math.abs(Math.cos(rot)), s = Math.abs(Math.sin(rot));
   const base = Math.max(bw / (iw * c + ih * s), bh / (iw * s + ih * c));
-  return { cx: (bb[0] + bb[2]) / 2 + p.tx * D, cy: (bb[1] + bb[3]) / 2 + p.ty * D, sc: base * p.s, rot, D };
+  return { cx: (bb[0] + bb[2]) / 2 + slot.tx * D, cy: (bb[1] + bb[3]) / 2 + slot.ty * D, sc: base * slot.s, rot, D };
 }
 // 印刷したときの写真の解像度（dpi）
-function photoDpi(p, g) {
-  const ph = photos.get(p.photo);
+function photoDpi(slot, g) {
+  const ph = photos.get(slot.photo);
   if (!ph || !ph.img) return Infinity;
-  const xf = photoXform(p, g, ph.img.width, ph.img.height);
-  const pxPerMm = (ph.w / ph.img.width) / (xf.sc * g.k); // 元の写真の画素 / 印刷の mm
-  return pxPerMm * 25.4;
+  const xf = photoXform(slot, g, ph.img.width, ph.img.height);
+  return (ph.w / ph.img.width) / (xf.sc * g.k) * 25.4; // 元の写真の画素 / 印刷の mm
 }
-
-/* 切り抜きを描く。ctx は 1 = 1mm、原点 = 切り抜きの左上 にしておく */
-function drawPiece(ctx, p, g, img, d = state.doc, o = {}) {
-  const rim = (RIM_COLORS.find(c => c.id === d.rimColor) || RIM_COLORS[0]).c;
-  const cut = d.cutLine && !o.noCut;
+// 切り抜きを描く。ctx は 1 = 1mm、原点 = 切り抜きの左上 にしておく
+function drawPiece(ctx, slot, g, img, d, o = {}) {
+  const mm = 1 / g.k;
   ctx.save();
-  ctx.translate(g.ox + g.pad, g.pad);
   ctx.scale(g.k, g.k);
   ctx.translate(-g.bb[0], -g.bb[1]);
-  const mm = 1 / g.k;
   ctx.lineJoin = 'round'; ctx.lineCap = 'round';
-  if (g.big && g.pad > 0) {
-    if (cut) { ctx.strokeStyle = ctx.fillStyle = CUT_COLOR; ctx.lineWidth = (g.pad + CUT_W) * 2 * mm; ctx.stroke(g.path); }
-    ctx.strokeStyle = ctx.fillStyle = rim; ctx.lineWidth = g.pad * 2 * mm; ctx.stroke(g.path); ctx.fill(g.path, 'evenodd');
-  }
   ctx.save();
   ctx.clip(g.path, 'evenodd');
-  if (img) {
-    const xf = photoXform(p, g, img.width, img.height);
-    ctx.fillStyle = o.empty || '#EDEDF0';
-    ctx.fill(g.path, 'evenodd');
+  ctx.fillStyle = o.empty || '#E3E3E8';
+  ctx.fill(g.path, 'evenodd');
+  if (img && slot) {
+    const xf = photoXform(slot, g, img.width, img.height);
     ctx.save();
     ctx.translate(xf.cx, xf.cy); ctx.rotate(xf.rot); ctx.scale(xf.sc, xf.sc);
     ctx.imageSmoothingQuality = 'high';
     ctx.drawImage(img, -img.width / 2, -img.height / 2);
     ctx.restore();
-  } else {
-    ctx.fillStyle = o.empty || '#E3E3E8';
-    ctx.fill(g.path, 'evenodd');
   }
-  if (!g.big && d.rimMap > 0) { ctx.strokeStyle = rim; ctx.lineWidth = d.rimMap * 2 * mm; ctx.stroke(g.path); }
+  if (d.rim > 0) { ctx.strokeStyle = rimOf(d); ctx.lineWidth = d.rim * 2 * mm; ctx.stroke(g.path); }
   ctx.restore();
-  if (cut && !(g.big && g.pad > 0)) { ctx.strokeStyle = CUT_COLOR; ctx.lineWidth = CUT_W * mm; ctx.stroke(g.path); }
+  if (d.cutLine && !o.noCut) { ctx.strokeStyle = CUT_COLOR; ctx.lineWidth = CUT_W * mm; ctx.stroke(g.path); }
   ctx.restore();
-  if (g.tag) {
-    const t = g.tag, x = (g.W - t.w) / 2, y = g.sh + t.gap, r = Math.min(t.h / 2, 4);
-    ctx.save();
-    ctx.beginPath(); ctx.roundRect(x, y, t.w, t.h, r);
-    ctx.fillStyle = rim; ctx.fill();
-    if (cut) { ctx.strokeStyle = CUT_COLOR; ctx.lineWidth = CUT_W; ctx.stroke(); }
-    ctx.fillStyle = rim === '#ffffff' ? '#3E383B' : '#ffffff';
-    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    let yy = y + t.h / 2 - t.lines.reduce((a, l) => a + l.size * 1.35, 0) / 2;
-    for (const l of t.lines) {
-      // 文字は 10 倍の大きさで描いて縮める（小さいフォントの描画が粗くならないように）
-      ctx.save(); ctx.translate(g.W / 2, yy + l.size * 0.675); ctx.scale(0.1, 0.1);
-      ctx.font = `700 ${l.size * 10}px ${CANVAS_FONT}`;
-      ctx.fillText(l.t, 0, 0, t.w * 10 - l.size * 10);
-      ctx.restore();
-      yy += l.size * 1.35;
+}
+/* まとまりの地図を描く（作業エリアとサムネイルで共通）
+ *  v: { s: 1km の px, ox, oy, r: 画面の倍率 } */
+function drawLayout(c, L, v, o) {
+  const d = state.doc;
+  const T = (dx, dy) => c.setTransform(v.r * v.s, 0, 0, v.r * v.s, v.r * (v.ox + dx * v.s), v.r * (v.oy + dy * v.s));
+  const px = 1 / v.s;
+  c.lineJoin = 'round';
+  if (L.inset && o.frame !== false) {
+    T(0, 0);
+    c.lineWidth = px; c.strokeStyle = theme.muted; c.globalAlpha = .5;
+    c.strokeRect(L.inset[0], L.inset[1], L.inset[2], L.inset[3]);
+    c.globalAlpha = 1;
+  }
+  for (const i of L.prefs) {
+    const [dx, dy] = L.off[i], path = prefPaths[i];
+    T(dx, dy);
+    const slot = o.set && o.set.slots[i], ph = slot && photos.get(slot.photo);
+    if (ph && ph.img) {
+      const g = pieceGeom(o.set, i), xf = photoXform(slot, g, ph.img.width, ph.img.height);
+      c.save();
+      c.clip(path, 'evenodd');
+      c.fillStyle = theme.land; c.fill(path, 'evenodd');
+      c.save(); c.translate(xf.cx, xf.cy); c.rotate(xf.rot); c.scale(xf.sc, xf.sc);
+      c.drawImage(ph.img, -ph.img.width / 2, -ph.img.height / 2);
+      c.restore();
+      if (d.rim > 0) { c.strokeStyle = rimOf(d); c.lineWidth = Math.max(d.rim * 2 / g.k, 1.2 * px); c.stroke(path); }
+      c.restore();
+    } else {
+      c.fillStyle = o.pick && o.pick.has(i) ? theme.pick : theme.land;
+      c.fill(path, 'evenodd');
     }
-    ctx.restore();
+    c.strokeStyle = theme.line; c.lineWidth = (o.thin ? 0.5 : 0.8) * px; c.stroke(path);
+  }
+  if (o.sel >= 0 && L.prefs.includes(o.sel)) {
+    T(L.off[o.sel][0], L.off[o.sel][1]);
+    c.strokeStyle = theme.accent; c.lineWidth = 2.2 * px; c.stroke(prefPaths[o.sel]);
   }
 }
 
@@ -889,16 +950,9 @@ function packSheets(items, W, H, gap) {
   }
   return { sheets: sheets.map(s => s.items), tooBig };
 }
-// 大きめの切り抜きが用紙に入る最大の大きさ（長い辺, mm）
-function bigMax(p, d = state.doc) {
-  const A = printable(d.paper);
-  let lo = 20, hi = Math.max(A.w, A.h);
-  for (let n = 0; n < 24; n++) {
-    const mid = (lo + hi) / 2, g = pieceGeom({ ...p, mode: 'big', size: mid }, d);
-    const ok = (g.W <= A.w && g.H <= A.h) || (g.H <= A.w && g.W <= A.h);
-    if (ok) lo = mid; else hi = mid;
-  }
-  return Math.floor(lo);
+function packFor(refs, d = state.doc) {
+  const A = printable(d.paper), cal = 30 / calibOf(d.paper);
+  return packSheets(refs.map(ref => { const g = pieceGeom(ref.set, ref.pref); return { w: g.W * cal, h: g.H * cal, ref }; }), A.w, A.h, SHEET_GAP);
 }
 
 /* =========================================================
@@ -917,68 +971,80 @@ async function makePreview(blob) {
 }
 function addPhoto(id, blob) {
   const ph = { blob, w: 0, h: 0, img: null };
-  ph.ready = makePreview(blob).then(r => { Object.assign(ph, r); thumbCache.clear(); requestDraw(); renderStrip(); updateOverlay(); return true; })
+  ph.ready = makePreview(blob).then(r => { Object.assign(ph, r); thumbCache.clear(); render(); return true; })
     .catch(() => { photos.delete(id); return false; });
   photos.set(id, ph);
   return ph;
 }
-function choosePhoto() { const fi = $('#fileInput'); fi.value = ''; fi.click(); }
+function choosePhoto() { $('#fileInput').click(); }
 async function setPhotoFile(file) {
-  if (!file || !/^image\//.test(file.type || 'image/')) { toast('画像ファイルを選んでください', { error: true }); return; }
-  const id = `ph${Date.now().toString(36)}${(pieceSeq++).toString(36)}`;
+  if (!/^image\//.test(file.type || 'image/')) { toast('画像ファイルを選んでください', { error: true }); return; }
+  const set = curSet(), pref = ui.pref;
+  if (!set || pref < 0) return;
+  const id = newId('ph');
   const ph = addPhoto(id, file);
   if (!(await ph.ready)) { toast('この写真は読み込めませんでした。JPEG か PNG の写真を選んでください', { error: true, duration: 4000 }); return; }
   fileStore.put(id, file);
-  let p = curPiece();
-  if (!p) return;
-  if (ui.draft === p) {
-    p = { ...p, id: `pc${Date.now().toString(36)}${(pieceSeq++).toString(36)}` };
-    state.doc.pieces.push(p);
-    ui.draft = null; ui.cur = p.id;
-  } else {
-    p = state.doc.pieces.find(q => q.id === p.id);
-  }
-  Object.assign(p, { photo: id, tx: 0, ty: 0, s: 1, r: 0 });
+  set.slots[pref] = { photo: id, tx: 0, ty: 0, s: 1, r: 0 };
   changed();
 }
 $('#fileInput').addEventListener('change', e => { const f = e.target.files[0]; e.target.value = ''; if (f) setPhotoFile(f); });
 
 /* =========================================================
- * 画面（地図 / 1つの県）
+ * 画面
+ *  set: まとまりの地図（県をタップ → piece）
+ *  piece: 1つの県の写真を調整（1県だけのまとまりはいつもこれ）
+ *  pick: 日本地図で県を選ぶ
  * ======================================================= */
 const stage = $('#stage'), canvas = $('#view'), ctx = canvas.getContext('2d');
 let dpr = 1, cssW = 0, cssH = 0;
-const mapView = { s: 0, ox: 0, oy: 0, fitS: 0, zoomed: false };
+const mapView = { s: 1, ox: 0, oy: 0, fitS: 1, zoomed: false, key: '' };
 let theme = {};
 function readTheme() {
-  const cs = getComputedStyle(document.documentElement);
-  theme = { land: cs.getPropertyValue('--map-land').trim(), line: cs.getPropertyValue('--map-line').trim(), accent: cs.getPropertyValue('--accent-strong').trim(),
-    muted: cs.getPropertyValue('--muted').trim(), text: cs.getPropertyValue('--text').trim(), surface: cs.getPropertyValue('--surface').trim(), font: getComputedStyle(document.body).fontFamily };
+  const cs = getComputedStyle(document.documentElement), v = n => cs.getPropertyValue(n).trim();
+  theme = { land: v('--map-land'), line: v('--map-line'), accent: v('--accent-strong'), pick: v('--pink'), muted: v('--muted') };
 }
 readTheme();
-matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { readTheme(); thumbCache.clear(); requestDraw(); renderStrip(); });
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { readTheme(); thumbCache.clear(); render(); });
 
-const curPiece = () => ui.draft || state.doc.pieces.find(p => p.id === ui.cur) || null;
-const mapPieceFor = i => { for (let j = state.doc.pieces.length - 1; j >= 0; j--) { const p = state.doc.pieces[j]; if (p.pref === i && p.mode === 'map') return p; } return null; };
-function openPref(i) {
-  const p = mapPieceFor(i) || state.doc.pieces.find(q => q.pref === i);
-  if (p) { ui.cur = p.id; ui.draft = null; }
-  else { ui.draft = { id: 'draft', pref: i, mode: 'map', size: 120, islands: false, caption: '', photo: null, tx: 0, ty: 0, s: 1, r: 0 }; ui.cur = null; }
-  ui.view = 'piece';
+const curSet = () => state.doc.sets.find(s => s.id === ui.set) || null;
+function openSet(id) {
+  const s = state.doc.sets.find(x => x.id === id);
+  if (!s) return;
+  ui.set = id; ui.sel = -1; ui.chooser = false;
+  if (s.prefs.length === 1) { ui.view = 'piece'; ui.pref = s.prefs[0]; } else { ui.view = 'set'; ui.pref = -1; }
+  mapView.key = '';
   render(); updatePanels();
 }
-function openPiece(id) { ui.cur = id; ui.draft = null; ui.view = 'piece'; render(); updatePanels(); }
-function backToMap() { ui.sel = curPiece() ? curPiece().pref : -1; ui.view = 'map'; ui.draft = null; render(); updatePanels(); }
+// 戻る/やり直すなどで中身が変わったあと、画面の状態を正しくする
+function normalizeUi() {
+  if (ui.view === 'pick') return;
+  let s = curSet();
+  if (!s) { const last = state.doc.sets[state.doc.sets.length - 1]; ui.set = last ? last.id : null; s = last || null; }
+  if (!s) { ui.view = 'set'; return; }
+  if (s.prefs.length === 1) { ui.view = 'piece'; ui.pref = s.prefs[0]; }
+  else if (ui.view === 'piece' && !s.prefs.includes(ui.pref)) ui.view = 'set';
+}
+function createSet(prefs) {
+  prefs = prefs.slice().sort((a, b) => a - b);
+  const board = BOARDS.find(b => b.id === (prefs.length === 1 ? 'PC' : prefs.length === 47 ? 'A3' : 'A4'));
+  const set = { id: newId('s'), name: setNameOf(prefs), prefs, size: round1(boardFit(layoutOf(prefs), board)), slots: {} };
+  state.doc.sets.push(set);
+  ui.set = set.id;
+  openSet(set.id);
+  changed();
+}
 
 // 作業エリアのうち、地図や切り抜きを描ける範囲（上のボタンと下の一覧をよける）
 function viewArea() {
-  const top = 56, bottom = ui.view === 'piece' ? 80 + 56 : 80 + (state.doc.pieces.length ? 8 : 44);
+  const top = 56, bottom = ui.view === 'pick' ? 52 : 80 + (ui.view === 'piece' ? 56 : 44);
   return { x: 12, y: top, w: Math.max(40, cssW - 24), h: Math.max(40, cssH - top - bottom) };
 }
-function fitMap() {
+function currentLayout() { return ui.view === 'pick' ? layoutOf(ALL) : curSet() ? layoutOf(curSet().prefs) : null; }
+function fitMap(L) {
   const a = viewArea();
-  const s = Math.min(a.w / FRAME.w, a.h / FRAME.h) * 0.96;
-  Object.assign(mapView, { s, fitS: s, ox: a.x + (a.w - FRAME.w * s) / 2 - FRAME.x0 * s, oy: a.y + (a.h - FRAME.h * s) / 2 - FRAME.y0 * s, zoomed: false });
+  const s = Math.min(a.w / L.w, a.h / L.h) * 0.94;
+  Object.assign(mapView, { s, fitS: s, ox: a.x + (a.w - L.w * s) / 2 - L.bb[0] * s, oy: a.y + (a.h - L.h * s) / 2 - L.bb[1] * s, zoomed: false });
   $('#fitBtn').hidden = true;
 }
 function resize() {
@@ -986,7 +1052,7 @@ function resize() {
   dpr = Math.min(3, window.devicePixelRatio || 1);
   cssW = r.width; cssH = r.height;
   canvas.width = Math.max(1, Math.round(cssW * dpr)); canvas.height = Math.max(1, Math.round(cssH * dpr));
-  if (!mapView.zoomed) fitMap();
+  if (!mapView.zoomed) mapView.key = '';
   draw();
 }
 new ResizeObserver(resize).observe(stage);
@@ -996,90 +1062,23 @@ function requestDraw() { if (!drawQueued) { drawQueued = true; requestAnimationF
 function draw() {
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  if (ui.view === 'piece' && curPiece()) drawPieceView(); else drawMapView();
+  if (!$('#chooser').hidden) return;
+  if (ui.view === 'piece' && curSet()) { drawPieceView(); return; }
+  const L = currentLayout();
+  if (!L) return;
+  const key = `${ui.view}|${L.prefs.join(',')}`;
+  if (mapView.key !== key) { fitMap(L); mapView.key = key; }
+  drawLayout(ctx, L, { ...mapView, r: dpr }, ui.view === 'pick' ? { pick: ui.pick } : { set: curSet(), sel: ui.sel });
 }
-
-function drawMapView() {
-  const d = state.doc, v = mapView, k = mapK(d);
-  const T = (x = 0, y = 0) => ctx.setTransform(dpr * v.s, 0, 0, dpr * v.s, dpr * (v.ox + x * v.s), dpr * (v.oy + y * v.s));
-  const px = 1 / v.s; // 1 css px を km で
-  // 用紙の大きさの目安（右下の海の上）
-  const P = PAPERS[d.paper], pw = P.w / k, ph = P.h / k;
-  const rx = FRAME.x1 - pw, ry = FRAME.y1 - ph;
-  T();
-  ctx.save();
-  ctx.setLineDash([5 * px, 4 * px]); ctx.lineWidth = 1.2 * px; ctx.strokeStyle = theme.muted;
-  ctx.strokeRect(rx, ry, pw, ph);
-  ctx.restore();
-  // 沖縄の枠
-  ctx.lineWidth = 1 * px; ctx.strokeStyle = theme.muted; ctx.globalAlpha = .5;
-  ctx.strokeRect(OKI_BOX[0], OKI_BOX[1], OKI_BOX[2], OKI_BOX[3]);
-  ctx.globalAlpha = 1;
-  // 県
-  for (const pr of PREF) {
-    const off = pr.i === OKINAWA ? OKI_OFF : [0, 0];
-    T(off[0], off[1]);
-    const p = mapPieceFor(pr.i), ph2 = p && photos.get(p.photo);
-    if (p && ph2 && ph2.img) {
-      const g = pieceGeom(p, d), xf = photoXform(p, g, ph2.img.width, ph2.img.height);
-      ctx.save();
-      ctx.clip(mainPaths[pr.i], 'evenodd');
-      ctx.fillStyle = theme.land; ctx.fill(mainPaths[pr.i], 'evenodd');
-      ctx.translate(xf.cx, xf.cy); ctx.rotate(xf.rot); ctx.scale(xf.sc, xf.sc);
-      ctx.drawImage(ph2.img, -ph2.img.width / 2, -ph2.img.height / 2);
-      ctx.restore();
-      if (d.rimMap > 0) {
-        ctx.save(); ctx.clip(mainPaths[pr.i], 'evenodd');
-        ctx.strokeStyle = (RIM_COLORS.find(c => c.id === d.rimColor) || RIM_COLORS[0]).c;
-        ctx.lineWidth = Math.max(d.rimMap * 2 / k, 1.2 * px); ctx.lineJoin = 'round'; ctx.stroke(mainPaths[pr.i]);
-        ctx.restore();
-      }
-    } else {
-      ctx.fillStyle = theme.land; ctx.fill(mainPaths[pr.i], 'evenodd');
-    }
-    ctx.strokeStyle = theme.line; ctx.lineWidth = 0.8 * px; ctx.lineJoin = 'round'; ctx.stroke(mainPaths[pr.i]);
-  }
-  if (ui.sel >= 0) {
-    const off = ui.sel === OKINAWA ? OKI_OFF : [0, 0];
-    T(off[0], off[1]);
-    ctx.strokeStyle = theme.accent; ctx.lineWidth = 2.2 * px; ctx.stroke(mainPaths[ui.sel]);
-  }
-  // 文字（画面の px で）
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  ctx.font = `600 11px ${theme.font}`; ctx.fillStyle = theme.muted; ctx.textAlign = 'right';
-  ctx.fillText(`${P.label}の大きさ`, v.ox + FRAME.x1 * v.s - 6, v.oy + FRAME.y1 * v.s - 6);
-  ctx.textAlign = 'start';
-}
-
 let pieceXf = null; // 1つの県の画面: 写真を指で動かすための換算
 function drawPieceView() {
-  const p = curPiece(), d = state.doc, g = pieceGeom(p, d), a = viewArea();
-  // 1円玉（直径 20mm）を同じ縮尺で、横か下の切り抜きが大きく見えるほうに置く
-  const gap = 8, lab = 7;
-  const side = { cw: g.W + gap + COIN, ch: Math.max(g.H, COIN + lab) }, below = { cw: Math.max(g.W, COIN), ch: g.H + gap + COIN + lab };
-  const fit = L => Math.min(a.w / L.cw, a.h / L.ch) * 0.94;
-  const L = fit(side) >= fit(below) ? side : below, s = fit(L);
-  const ox = a.x + (a.w - L.cw * s) / 2, oy = a.y + (a.h - L.ch * s) / 2;
-  const px0 = L === side ? ox : ox + (L.cw - g.W) * s / 2, py = L === side ? oy + (L.ch - g.H) * s / 2 : oy;
-  const ph = photos.get(p.photo);
-  ctx.setTransform(dpr * s, 0, 0, dpr * s, dpr * px0, dpr * py);
-  drawPiece(ctx, p, g, ph && ph.img, d, { empty: theme.land });
-  const cx = L === side ? ox + (g.W + gap + COIN / 2) * s : ox + L.cw * s / 2;
-  const cy = L === side ? oy + L.ch * s / 2 - lab * s / 2 : oy + (g.H + gap + COIN / 2) * s;
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  ctx.beginPath(); ctx.arc(cx, cy, COIN / 2 * s, 0, Math.PI * 2);
-  ctx.fillStyle = 'rgba(190,190,198,.45)'; ctx.fill();
-  ctx.strokeStyle = 'rgba(150,150,160,.7)'; ctx.lineWidth = 1; ctx.stroke();
-  ctx.fillStyle = theme.muted; ctx.textAlign = 'center';
-  ctx.font = `700 ${clamp(COIN * s * 0.28, 9, 15)}px ${theme.font}`; ctx.textBaseline = 'middle';
-  ctx.fillText('1', cx, cy);
-  ctx.font = `600 11px ${theme.font}`; ctx.textBaseline = 'top';
-  ctx.fillText('1円玉', cx, cy + COIN / 2 * s + 4);
-  ctx.textAlign = 'start'; ctx.textBaseline = 'alphabetic';
-  pieceXf = { s, g, k: g.k };
-  // 「写真を選ぶ」は切り抜きの真ん中に
-  const pc = $('#pickCenter').style;
-  pc.left = `${px0 + g.W * s / 2}px`; pc.top = `${py + g.sh * s / 2}px`;
+  const set = curSet(), g = pieceGeom(set, ui.pref), a = viewArea(), slot = set.slots[ui.pref];
+  const s = Math.min(a.w / g.W, a.h / g.H) * 0.92;
+  const ox = a.x + (a.w - g.W * s) / 2, oy = a.y + (a.h - g.H * s) / 2;
+  const ph = slot && photos.get(slot.photo);
+  ctx.setTransform(dpr * s, 0, 0, dpr * s, dpr * ox, dpr * oy);
+  drawPiece(ctx, slot, g, ph && ph.img, state.doc, { empty: theme.land });
+  pieceXf = { s, g };
 }
 
 /* ---------- 指やマウスでの操作 ---------- */
@@ -1091,10 +1090,10 @@ function snapAngle(deg) {
   if (Math.abs(r - n) <= DETENT) r = n;
   return ((r % 360) + 360) % 360;
 }
+const curSlot = () => { const s = curSet(); return ui.view === 'piece' && s ? s.slots[ui.pref] || null : null; };
 function startGesture() {
-  const pts = [...ptrs.values()];
-  const p = ui.view === 'piece' ? curPiece() : null;
-  gest = { pts: pts.map(q => ({ ...q })), t: performance.now(), moved: gest ? true : false, map: { ...mapView }, piece: p && p.photo ? { tx: p.tx, ty: p.ty, s: p.s, r: p.r } : null };
+  const pts = [...ptrs.values()], slot = curSlot();
+  gest = { pts: pts.map(q => ({ ...q })), t: performance.now(), moved: !!gest, map: { ...mapView }, slot: slot ? { ...slot } : null };
   if (pts.length >= 2) {
     gest.mid = { x: (pts[0].x + pts[1].x) / 2, y: (pts[0].y + pts[1].y) / 2 };
     gest.dist = Math.hypot(pts[1].x - pts[0].x, pts[1].y - pts[0].y) || 1;
@@ -1113,20 +1112,18 @@ function moveGesture() {
   }
   if (Math.hypot(dx, dy) > 6 || ratio !== 1) gest.moved = true;
   if (!gest.moved) return;
-  if (ui.view === 'map') {
-    const b = gest.map;
-    const s = clamp(b.s * ratio, b.fitS, b.fitS * 12);
-    const m = gest.mid || gest.pts[0];
+  if (ui.view !== 'piece') {
+    const b = gest.map, s = clamp(b.s * ratio, b.fitS, b.fitS * 12), m = gest.mid || gest.pts[0];
     const wx = (m.x - b.ox) / b.s, wy = (m.y - b.oy) / b.s;
-    mapView.s = s; mapView.ox = m.x + dx - wx * s; mapView.oy = m.y + dy - wy * s;
-    mapView.zoomed = true; $('#fitBtn').hidden = false;
+    Object.assign(mapView, { s, ox: m.x + dx - wx * s, oy: m.y + dy - wy * s, zoomed: true });
+    $('#fitBtn').hidden = false;
     requestDraw();
-  } else if (gest.piece && pieceXf) {
-    const p = curPiece(), b = gest.piece, D = Math.max(pieceXf.g.bb[2] - pieceXf.g.bb[0], pieceXf.g.bb[3] - pieceXf.g.bb[1]);
-    const kmPerPx = 1 / (pieceXf.s * pieceXf.k);
-    p.tx = b.tx + dx * kmPerPx / D; p.ty = b.ty + dy * kmPerPx / D;
-    p.s = clamp(b.s * ratio, MIN_S, MAX_S);
-    if (dAng) p.r = snapAngle(b.r + dAng * 180 / Math.PI);
+  } else if (gest.slot && pieceXf) {
+    const slot = curSlot(), b = gest.slot, g = pieceXf.g, D = Math.max(g.bb[2] - g.bb[0], g.bb[3] - g.bb[1]);
+    const kmPerPx = 1 / (pieceXf.s * g.k);
+    slot.tx = b.tx + dx * kmPerPx / D; slot.ty = b.ty + dy * kmPerPx / D;
+    slot.s = clamp(b.s * ratio, MIN_S, MAX_S);
+    if (dAng) slot.r = snapAngle(b.r + dAng * 180 / Math.PI);
     requestDraw();
   }
 }
@@ -1148,153 +1145,177 @@ function endPointer(e) {
   gest = null;
   if (!was) return;
   if (!was.moved && single && performance.now() - was.t < 600) { tap(e.offsetX, e.offsetY); return; }
-  if (ui.view === 'piece' && was.piece) changed();
+  if (ui.view === 'piece' && was.slot) changed();
 }
 canvas.addEventListener('pointerup', endPointer);
 canvas.addEventListener('pointercancel', endPointer);
 canvas.addEventListener('wheel', e => {
   e.preventDefault();
   const f = Math.exp(-e.deltaY * (e.ctrlKey ? 0.01 : 0.0015));
-  if (ui.view === 'map') {
+  if (ui.view !== 'piece') {
     const b = { ...mapView }, s = clamp(b.s * f, b.fitS, b.fitS * 12);
     const wx = (e.offsetX - b.ox) / b.s, wy = (e.offsetY - b.oy) / b.s;
     Object.assign(mapView, { s, ox: e.offsetX - wx * s, oy: e.offsetY - wy * s, zoomed: s > b.fitS * 1.001 });
     $('#fitBtn').hidden = !mapView.zoomed;
     requestDraw();
   } else {
-    const p = curPiece();
-    if (!p || !p.photo) return;
-    p.s = clamp(p.s * f, MIN_S, MAX_S);
+    const slot = curSlot();
+    if (!slot) return;
+    slot.s = clamp(slot.s * f, MIN_S, MAX_S);
     requestDraw();
     clearTimeout(wheelTimer); wheelTimer = setTimeout(changed, 350);
   }
 }, { passive: false });
 document.addEventListener('gesturestart', e => e.preventDefault()); // iOS のページ拡大を止める
-function hitPref(x, y) {
+function hitPref(L, x, y) {
   const v = mapView;
   for (const tol of [0, 10]) {
-    for (let i = PREF.length - 1; i >= 0; i--) {
-      const off = i === OKINAWA ? OKI_OFF : [0, 0];
-      ctx.setTransform(dpr * v.s, 0, 0, dpr * v.s, dpr * (v.ox + off[0] * v.s), dpr * (v.oy + off[1] * v.s));
-      const hit = tol ? (ctx.lineWidth = tol * 2 / v.s, ctx.isPointInStroke(mainPaths[i], x * dpr, y * dpr)) : ctx.isPointInPath(mainPaths[i], x * dpr, y * dpr, 'evenodd');
+    for (let j = L.prefs.length - 1; j >= 0; j--) {
+      const i = L.prefs[j], [dx, dy] = L.off[i];
+      ctx.setTransform(dpr * v.s, 0, 0, dpr * v.s, dpr * (v.ox + dx * v.s), dpr * (v.oy + dy * v.s));
+      ctx.lineWidth = tol * 2 / v.s;
+      const hit = tol ? ctx.isPointInStroke(prefPaths[i], x * dpr, y * dpr) : ctx.isPointInPath(prefPaths[i], x * dpr, y * dpr, 'evenodd');
       if (hit) return i;
     }
   }
   return -1;
 }
 function tap(x, y) {
-  if (ui.view !== 'map') { const p = curPiece(); if (p && !p.photo) choosePhoto(); return; }
-  const i = hitPref(x, y);
+  if (ui.view === 'piece') { if (!curSlot()) choosePhoto(); return; }
+  const L = currentLayout();
+  if (!L) return;
+  const i = hitPref(L, x, y);
   requestDraw();
-  if (i >= 0) openPref(i);
+  if (i < 0) return;
+  if (ui.view === 'pick') { ui.pick.has(i) ? ui.pick.delete(i) : ui.pick.add(i); render(); return; }
+  ui.pref = i; ui.view = 'piece';
+  render(); updatePanels();
 }
-$('#fitBtn').addEventListener('click', () => { fitMap(); requestDraw(); });
+$('#fitBtn').addEventListener('click', () => { mapView.key = ''; requestDraw(); });
 // パソコンでは写真をドラッグして入れられる
 stage.addEventListener('dragover', e => { if (ui.view === 'piece') e.preventDefault(); });
 stage.addEventListener('drop', e => { if (ui.view !== 'piece') return; e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) setPhotoFile(f); });
 
-/* ---------- 画面の上下のボタンと一覧 ---------- */
+/* ---------- 作業エリアのボタン ---------- */
+function prefOptions(list, sel) {
+  return AREAS.map(([name, a, b]) => {
+    const items = list.filter(i => i >= a && i < b);
+    return items.length ? `<optgroup label="${name}">${items.map(i => `<option value="${i}"${i === sel ? ' selected' : ''}>${PREF_NAMES[i]}</option>`).join('')}</optgroup>` : '';
+  }).join('');
+}
+$('#regionGrid').innerHTML = REGIONS.map((r, j) => `<button class="choice" data-region="${j}">${r.short}</button>`).join('');
+$('#onePref').innerHTML = `<option value="" selected disabled>県を選ぶ</option>${prefOptions(ALL, -1)}`;
 function updateOverlay() {
-  const d = state.doc, piece = ui.view === 'piece' ? curPiece() : null;
-  $('#mapTop').hidden = !!piece; $('#pieceTop').hidden = !piece;
-  $('#pieceTools').hidden = !piece; $('#pickCenter').hidden = !(piece && !piece.photo);
-  $('#mapHint').hidden = !!piece || d.pieces.length > 0;
-  const mapH = FRAME.h * mapK(d);
-  $('#mapChipText').innerHTML = `日本地図 <b>${fmtDims(d.mapWidth, mapH)}</b>`;
-  const filled = new Set(d.pieces.filter(p => p.mode === 'map').map(p => p.pref)).size;
-  $('#countChip').innerHTML = `<b>${filled}</b><span class="muted">/ 47</span>`;
-  if (!piece) return;
-  const g = pieceGeom(piece, d);
-  $('#prefName').textContent = PREF_NAMES[piece.pref];
-  $('#prefSelect').value = String(piece.pref);
-  $('#sizeChip').innerHTML = `${fmtDims(g.W, g.H)}`;
-  $$('#modeSeg2 button').forEach(b => b.classList.toggle('on', b.dataset.v === piece.mode));
-  $('#photoBtn').hidden = $('#rotBtn').hidden = $('#resetBtn').hidden = !piece.photo;
-  $('#delBtn').hidden = ui.draft === piece;
-  $('#lowresChip').hidden = !(piece.photo && photoDpi(piece, g) < LOW_DPI);
+  const set = curSet(), v = ui.view;
+  const chooser = ui.chooser || (!state.doc.sets.length && v !== 'pick');
+  $('#chooser').hidden = !chooser;
+  $('#chooserClose').hidden = !state.doc.sets.length;
+  const showSet = !chooser && v === 'set' && !!set, showPiece = !chooser && v === 'piece' && !!set, showPick = !chooser && v === 'pick';
+  $('#setTop').hidden = !showSet; $('#setHint').hidden = !(showSet && !Object.keys(set.slots).length);
+  $('#pieceTop').hidden = $('#pieceTools').hidden = !showPiece;
+  $('#pickTop').hidden = $('#pickHint').hidden = !showPick;
+  $('#strip').hidden = showPick;
+  $('#pickCenter').hidden = !(showPiece && !set.slots[ui.pref]);
+  if (showSet) {
+    const L = layoutOf(set.prefs), k = setK(set);
+    $('#setName').textContent = set.name;
+    $('#setSize').textContent = fmtDims(L.w * k, L.h * k);
+    $('#countChip').innerHTML = `写真 <b>${Object.keys(set.slots).length}</b><span class="muted">/ ${set.prefs.length}</span>`;
+  }
+  if (showPiece) {
+    const g = pieceGeom(set, ui.pref), slot = set.slots[ui.pref], multi = set.prefs.length > 1;
+    $('#backBtn').hidden = !multi;
+    $('#prefName').textContent = PREF_NAMES[ui.pref];
+    $('#prefDown').style.display = multi ? '' : 'none';
+    const sel = $('#prefSelect');
+    sel.disabled = !multi;
+    sel.innerHTML = prefOptions(set.prefs, ui.pref);
+    $('#pieceSize').textContent = fmtDims(g.W, g.H);
+    $('#photoBtn').hidden = $('#rotBtn').hidden = $('#resetBtn').hidden = $('#unsetBtn').hidden = !slot;
+    $('#lowresChip').hidden = !(slot && photoDpi(slot, g) < LOW_DPI);
+  }
+  if (showPick) {
+    $('#pickCount').textContent = ui.pick.size ? `${ui.pick.size}県を選んでいます` : '県を選んでください';
+    $('#pickOk').disabled = !ui.pick.size;
+  }
 }
 const thumbCache = new Map();
-function thumbFor(p) {
-  const d = state.doc, ph = photos.get(p.photo);
-  const key = JSON.stringify([p, d.rimColor, d.rimMap, d.rimBig, d.label, !!(ph && ph.img), theme.land, p.mode === 'map' ? 0 : d.paper]);
-  let c = thumbCache.get(p.id);
+function thumbFor(set) {
+  const key = JSON.stringify([set.prefs, set.size, set.slots, state.doc.rim, state.doc.rimColor, theme.land, [...photos.values()].filter(p => p.img).length]);
+  let c = thumbCache.get(set.id);
   if (c && c._key === key) return c;
+  const W = 50, H = 40, r = Math.min(3, window.devicePixelRatio || 1), L = layoutOf(set.prefs);
   c = document.createElement('canvas');
-  const W = 50, H = 40, r = Math.min(3, window.devicePixelRatio || 1);
   c.width = W * r; c.height = H * r;
-  const g = pieceGeom(p, d), s = Math.min(W / g.W, H / g.H) * 0.92;
-  const x = c.getContext('2d');
-  x.setTransform(r * s, 0, 0, r * s, r * (W - g.W * s) / 2, r * (H - g.H * s) / 2);
-  drawPiece(x, p, g, ph && ph.img, d, { noCut: true, empty: theme.land });
+  const s = Math.min(W / L.w, H / L.h) * 0.92;
+  drawLayout(c.getContext('2d'), L, { s, ox: (W - L.w * s) / 2 - L.bb[0] * s, oy: (H - L.h * s) / 2 - L.bb[1] * s, r }, { set, frame: false, thin: true });
   c._key = key;
-  thumbCache.set(p.id, c);
+  thumbCache.set(set.id, c);
   return c;
 }
-function prefOptions(sel) {
-  return REGIONS.map(([name, a, b]) => `<optgroup label="${name}">${PREF_NAMES.slice(a, b).map((n, j) => `<option value="${a + j}"${a + j === sel ? ' selected' : ''}>${n}</option>`).join('')}</optgroup>`).join('');
-}
-$('#prefSelect').innerHTML = prefOptions(-1);
 function renderStrip() {
   const d = state.doc, strip = $('#strip');
-  const cur = ui.view === 'piece' ? curPiece() : null;
-  const add = `<button class="strip-add" title="県を選んで追加"><svg class="dash" viewBox="0 0 60 62" preserveAspectRatio="none" aria-hidden="true"><rect x="1" y="1" width="58" height="60" rx="11" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3"/></svg>${icon('plus')}追加<select aria-label="県を選んで追加"><option value="" selected disabled>県を選ぶ</option>${prefOptions(-1)}</select></button>`;
-  const items = d.pieces.map(p => `<button class="strip-item${cur && cur.id === p.id ? ' on' : ''}" data-id="${p.id}" title="${PREF_NAMES[p.pref]}${p.mode === 'big' ? '（大きめ）' : ''}"><canvas></canvas><span>${PREF_NAMES[p.pref]}</span>${p.mode === 'big' ? '<i class="badge">大</i>' : ''}</button>`).join('');
-  strip.innerHTML = add + (items || '<div class="strip-empty">作った切り抜きがここに並びます。<br>地図の県をタップするか「追加」から選んでください。</div>');
-  d.pieces.forEach((p, j) => {
-    const t = thumbFor(p), el = strip.querySelectorAll('.strip-item canvas')[j];
-    el.width = t.width; el.height = t.height; el.getContext('2d').drawImage(t, 0, 0);
-  });
+  const add = `<button class="strip-add" id="addSetBtn" title="地図を追加"><svg class="dash" viewBox="0 0 60 62" preserveAspectRatio="none" aria-hidden="true"><rect x="1" y="1" width="58" height="60" rx="11" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3"/></svg>${icon('plus')}追加</button>`;
+  strip.innerHTML = add + d.sets.map(s => `<button class="strip-item${s.id === ui.set && !ui.chooser ? ' on' : ''}" data-id="${s.id}" title="${escapeHtml(s.name)}"><canvas></canvas><span>${escapeHtml(s.name.replace(/地方$/, ''))}</span></button>`).join('');
+  const cs = strip.querySelectorAll('.strip-item canvas');
+  d.sets.forEach((s, j) => { const t = thumbFor(s); cs[j].width = t.width; cs[j].height = t.height; cs[j].getContext('2d').drawImage(t, 0, 0); });
 }
-$('#strip').addEventListener('click', e => { const b = e.target.closest('.strip-item'); if (b) openPiece(b.dataset.id); });
-$('#strip').addEventListener('change', e => {
-  if (e.target.tagName !== 'SELECT') return;
-  const i = +e.target.value;
-  if (!(i >= 0)) return;
-  // 「追加」は、地図サイズがもうある県なら大きめで作る
-  const hasMap = !!mapPieceFor(i);
-  ui.draft = { id: 'draft', pref: i, mode: hasMap ? 'big' : 'map', size: 0, islands: false, caption: '', photo: null, tx: 0, ty: 0, s: 1, r: 0 };
-  if (hasMap) ui.draft.size = bigMax(ui.draft);
-  ui.cur = null; ui.view = 'piece';
-  render(); updatePanels();
+$('#strip').addEventListener('click', e => {
+  if (e.target.closest('#addSetBtn')) { ui.chooser = true; render(); updatePanels(); return; }
+  const b = e.target.closest('.strip-item');
+  if (b) openSet(b.dataset.id);
 });
-$('#backBtn').addEventListener('click', backToMap);
+$('#chooser').addEventListener('click', e => {
+  const r = e.target.closest('[data-region]');
+  if (r) { createSet(REGIONS[+r.dataset.region].prefs); return; }
+  if (e.target.closest('#pickAll')) { createSet(ALL); return; }
+  if (e.target.closest('#pickFree')) { startPick(null); return; }
+  if (e.target.closest('#chooserClose')) { ui.chooser = false; render(); updatePanels(); }
+});
+$('#onePref').addEventListener('change', e => { const i = +e.target.value; e.target.value = ''; if (i >= 0) createSet([i]); });
+function startPick(set) {
+  ui.chooser = false; ui.view = 'pick'; ui.pickFor = set ? set.id : null;
+  ui.pick = new Set(set ? set.prefs : []);
+  mapView.key = '';
+  activePanel = null;
+  render(); updatePanels();
+}
+function endPick() { ui.view = 'set'; ui.pick = null; ui.pickFor = null; mapView.key = ''; normalizeUi(); render(); updatePanels(); }
+$('#pickCancel').addEventListener('click', endPick);
+$('#pickOk').addEventListener('click', () => {
+  const prefs = [...ui.pick].sort((a, b) => a - b), s = state.doc.sets.find(x => x.id === ui.pickFor);
+  ui.pick = null; ui.pickFor = null;
+  if (!prefs.length) return;
+  if (!s) { createSet(prefs); return; }
+  // 県を選び直した: 外した県の写真は外す。大きさ（全体の長い辺）はそのまま
+  s.prefs = prefs; s.name = setNameOf(prefs);
+  for (const k of Object.keys(s.slots)) if (!prefs.includes(+k)) delete s.slots[k];
+  openSet(s.id);
+  changed();
+});
+$('#backBtn').addEventListener('click', () => { ui.sel = ui.pref; ui.view = 'set'; render(); updatePanels(); });
+$('#prefSelect').addEventListener('change', e => { ui.pref = +e.target.value; render(); updatePanels(); });
 $('#pickBtn').addEventListener('click', choosePhoto);
 $('#photoBtn').addEventListener('click', choosePhoto);
-$('#mapChip').addEventListener('click', () => openPanel('size'));
-$('#sizeChip').addEventListener('click', () => openPanel('size'));
-$('#prefSelect').addEventListener('change', e => {
-  const p = curPiece(); if (!p) return;
-  p.pref = +e.target.value; p.tx = 0; p.ty = 0; p.s = 1; p.islands = false;
-  if (p.mode === 'big') p.size = Math.min(p.size || 1e9, bigMax(p));
-  if (ui.draft === p) { render(); updatePanels(); } else changed();
-});
-$('#rotBtn').addEventListener('click', () => { const p = curPiece(); if (!p) return; p.r = (Math.round(p.r / 90) * 90 + 90) % 360; changed(); });
-$('#resetBtn').addEventListener('click', () => { const p = curPiece(); if (!p) return; p.tx = 0; p.ty = 0; p.s = 1; changed(); });
-$('#delBtn').addEventListener('click', e => {
-  const btn = e.currentTarget;
-  armButton(btn, '削除', () => {
-    const p = curPiece(); if (!p || ui.draft === p) return;
-    state.doc.pieces = state.doc.pieces.filter(q => q.id !== p.id);
-    thumbCache.delete(p.id);
-    ui.view = 'map'; ui.cur = null; ui.sel = p.pref;
+$('#setChip').addEventListener('click', () => openPanel('size'));
+$('#pieceSize').addEventListener('click', () => openPanel('size'));
+$('#rotBtn').addEventListener('click', () => { const s = curSlot(); if (s) { s.r = (Math.round(s.r / 90) * 90 + 90) % 360; changed(); } });
+$('#resetBtn').addEventListener('click', () => { const s = curSlot(); if (s) { s.tx = 0; s.ty = 0; s.s = 1; changed(); } });
+$('#unsetBtn').addEventListener('click', e => {
+  armButton(e.currentTarget, '外す', () => {
+    const set = curSet();
+    if (!set || !set.slots[ui.pref]) return;
+    delete set.slots[ui.pref];
     changed();
-    toast('削除しました（戻るで元に戻せます）');
+    toast('写真を外しました（戻るで元に戻せます）');
   });
 });
-function setMode(mode) {
-  const p = curPiece(); if (!p || p.mode === mode) return;
-  p.mode = mode;
-  if (mode === 'big' && !(p.size > 0)) p.size = bigMax(p);
-  if (mode === 'big') p.size = Math.min(p.size, bigMax(p));
-  if (ui.draft === p) { render(); updatePanels(); } else changed();
-}
-$('#modeSeg2').addEventListener('click', e => { const b = e.target.closest('button'); if (b) setMode(b.dataset.v); });
 
 function render() {
-  if (ui.view === 'piece' && !curPiece()) ui.view = 'map';
-  requestDraw();
+  normalizeUi();
   updateOverlay();
   renderStrip();
+  requestDraw();
 }
 
 /* =========================================================
@@ -1308,82 +1329,59 @@ function openPanel(name) {
   }
   activePanel = name; updatePanels();
 }
-const sliderToWidth = v => MAP_MIN * Math.pow(MAP_MAX / MAP_MIN, v / 1000);
-const widthToSlider = w => Math.round(1000 * Math.log(w / MAP_MIN) / Math.log(MAP_MAX / MAP_MIN));
-$('#mapPresets').innerHTML = BOARDS.map(b => `<button data-board="${b.id}">${b.label}</button>`).join('');
+const sliderToSize = v => SIZE_MIN * Math.pow(SIZE_MAX / SIZE_MIN, v / 1000);
+const sizeToSlider = w => Math.round(1000 * Math.log(w / SIZE_MIN) / Math.log(SIZE_MAX / SIZE_MIN));
+$('#boardPresets').innerHTML = BOARDS.map(b => `<button data-board="${b.id}">${b.label}</button>`).join('');
 $('#paperSeg').innerHTML = Object.entries(PAPERS).map(([k, p]) => `<button data-v="${k}">${p.label}</button>`).join('');
 $('#rimSwatches').innerHTML = RIM_COLORS.map(c => `<button data-rim="${c.id}" style="background:${c.c}" title="${c.label}" aria-label="フチの色: ${c.label}"></button>`).join('');
 
-let predCache = { key: '', html: '' };
-function predictionHtml() {
-  const d = state.doc, k = mapK(d), mapH = FRAME.h * k;
-  const p = ui.view === 'piece' ? curPiece() : null;
-  const key = JSON.stringify([d.mapWidth, d.paper, d.rimMap, p && [p.pref, p.mode, p.size, p.islands, p.caption], d.rimBig, d.label]);
-  if (predCache.key === key) return predCache.html;
-  const denom = 1e6 / k;
-  const geoms = PREF.map(pr => pieceGeom({ pref: pr.i, mode: 'map', islands: false }, d));
-  const order = geoms.map((g, i) => i).sort((a, b) => Math.max(geoms[a].W, geoms[a].H) - Math.max(geoms[b].W, geoms[b].H));
-  const small = order[0], large = order[order.length - 1];
-  const A = printable(d.paper);
-  const all = packSheets(geoms.map((g, i) => ({ w: g.W, h: g.H, ref: i })), A.w, A.h, SHEET_GAP);
-  const board = BOARDS.find(b => boardWidth(b) >= d.mapWidth - 0.05);
-  const rows = [[large, 'いちばん大きい'], [small, 'いちばん小さい']];
-  if (p && p.mode === 'map' && p.pref !== small && p.pref !== large) rows.unshift([p.pref, '']);
-  let html = `<div class="big">${fmtDims(d.mapWidth, mapH).replace(/ (mm|cm)$/, '<small> $1</small>')}</div>
-    <div class="scale">横 × 縦（沖縄は左上の枠）・縮尺 約1/${Math.round(denom / 1e4).toLocaleString()}万（1cm＝${(denom / 1e5).toFixed(0)}km）${board ? `・${board.label}の台紙に入ります` : ''}</div>
-    <ul>${rows.map(([i, lab]) => { const g = pieceGeom({ pref: i, mode: 'map', islands: p && p.pref === i ? p.islands : false }, d); return `<li${p && p.pref === i ? ' class="cur"' : ''}><span>${PREF_NAMES[i]}${lab ? `（${lab}）` : ''}</span><b>${fmtDims(g.W, g.H)}</b></li>`; }).join('')}</ul>`;
-  if (p && p.mode === 'big') { const g = pieceGeom(p, d); html += `<ul><li class="cur"><span>${PREF_NAMES[p.pref]}（大きめ）</span><b>${fmtDims(g.W, g.H)}</b></li></ul>`; }
-  html += `<div class="foot">47都道府県ぜんぶ並べると <b>${PAPERS[d.paper].label} ${all.sheets.length}枚</b></div>`;
-  if (all.tooBig.length) html += `<div class="warn">${icon('alert')}<span>${all.tooBig.map(i => PREF_NAMES[i]).join('・')}は${PAPERS[d.paper].label}に入りません。大きい用紙を選んでください。</span></div>`;
-  const smallMax = Math.max(geoms[small].W, geoms[small].H);
-  if (smallMax < 20) html += `<div class="warn">${icon('alert')}<span>小さい県は${fmtLen(smallMax)}ほどになります。写真の中身が分かりにくいかもしれません。</span></div>`;
-  predCache = { key, html };
+function predictionHtml(set) {
+  const d = state.doc, L = layoutOf(set.prefs), k = setK(set);
+  const geoms = set.prefs.map(i => ({ i, g: pieceGeom(set, i) })).sort((a, b) => Math.max(b.g.W, b.g.H) - Math.max(a.g.W, a.g.H));
+  const single = geoms.length === 1;
+  const W = single ? geoms[0].g.W : L.w * k, H = single ? geoms[0].g.H : L.h * k;
+  const board = BOARDS.find(b => boardFit(L, b) >= set.size - 0.05);
+  const cur = ui.view === 'piece' ? ui.pref : -1;
+  let html = `<div class="big">${fmtDims(W, H).replace(/ (mm|cm)$/, '<small> $1</small>')}</div>
+    <div class="scale">${single ? '' : '並べたときの全体・'}${board ? `${board.label}の台紙に入ります` : 'A3 より大きくなります'}・縮尺 約1/${Math.round(1e6 / k / 1e4).toLocaleString()}万</div>`;
+  if (!single) {
+    const rows = geoms.length <= 9 ? geoms.map(x => [x, '']) : [[geoms[0], 'いちばん大きい'], [geoms[geoms.length - 1], 'いちばん小さい']];
+    if (cur >= 0 && !rows.some(([x]) => x.i === cur)) rows.splice(1, 0, [geoms.find(x => x.i === cur), '']);
+    html += `<ul>${rows.map(([x, lab]) => `<li${x.i === cur ? ' class="cur"' : ''}><span>${PREF_NAMES[x.i]}${lab ? `（${lab}）` : ''}</span><b>${fmtDims(x.g.W, x.g.H)}</b></li>`).join('')}</ul>`;
+  }
+  const all = packFor(set.prefs.map(pref => ({ set, pref })));
+  html += `<div class="foot">${single ? '' : `${set.prefs.length}県ぜんぶ`}印刷すると <b>${PAPERS[d.paper].label} ${all.sheets.length}枚</b></div>`;
+  if (all.tooBig.length) html += `<div class="warn">${icon('alert')}<span>${all.tooBig.map(r => PREF_NAMES[r.pref]).join('・')}は${PAPERS[d.paper].label}に入りません。用紙を大きくするか、小さくしてください。</span></div>`;
+  const small = geoms[geoms.length - 1], smallMax = Math.max(small.g.W, small.g.H);
+  if (smallMax < SMALL_WARN) html += `<div class="warn">${icon('alert')}<span>${PREF_NAMES[small.i]}は${fmtLen(smallMax)}ほどで、写真がほとんど見えません。大きくするか、地方ごとに分けるのがおすすめです。</span></div>`;
   return html;
 }
 
 function updatePanels() {
-  const d = state.doc;
-  // 日本地図の大きさ
-  if (document.activeElement !== $('#mapRange')) $('#mapRange').value = widthToSlider(d.mapWidth);
-  if (document.activeElement !== $('#mapCm')) $('#mapCm').value = (d.mapWidth / 10).toFixed(1);
-  $$('#mapPresets button').forEach(b => b.classList.toggle('on', Math.abs(boardWidth(BOARDS.find(x => x.id === b.dataset.board)) - d.mapWidth) < 0.6));
-  $('#predict').innerHTML = predictionHtml();
-  // この県
-  const p = ui.view === 'piece' ? curPiece() : null;
-  $('#pieceOpts').hidden = !p; $('#pieceOptsEmpty').hidden = !!p;
-  if (p) {
-    const g = pieceGeom(p, d);
-    $('#pieceOptsTitle').textContent = `${PREF_NAMES[p.pref]}の切り抜き`;
-    $$('#modeSeg button').forEach(b => b.classList.toggle('on', b.dataset.v === p.mode));
-    $('#modeHint').textContent = p.mode === 'map' ? '日本地図と同じ縮尺です。ほかの県と並べると地図になります。' : '旅のページ用に、好きな大きさにできます。';
-    $('#bigField').hidden = $('#captionField').hidden = p.mode !== 'big';
-    if (p.mode === 'big') {
-      const mx = bigMax(p);
-      $('#bigRange').max = mx;
-      if (document.activeElement !== $('#bigRange')) $('#bigRange').value = Math.min(p.size, mx);
-      $('#bigOut').textContent = p.size > mx + 0.5 ? `${fmtLen(p.size)}（用紙に入りません）` : fmtLen(p.size);
-      if (document.activeElement !== $('#captionInput')) $('#captionInput').value = p.caption || '';
-    }
-    $('#islandRow').hidden = !PREF[p.pref].hasFar;
-    $('#islandChk').checked = !!p.islands;
-    $('#islandSub').textContent = FAR_NAMES[p.pref] || '本体から離れた小さな島';
+  const d = state.doc, set = ui.view === 'pick' ? null : curSet();
+  $('#sizeBody').hidden = !set; $('#sizeEmpty').hidden = !!set;
+  if (set) {
+    const L = layoutOf(set.prefs), single = set.prefs.length === 1;
+    $('#setTitle').textContent = set.name;
+    $('#sizeLabel').textContent = single ? '大きさ（長い辺）' : '全体の大きさ（長い辺）';
+    if (document.activeElement !== $('#sizeRange')) $('#sizeRange').value = sizeToSlider(set.size);
+    if (document.activeElement !== $('#sizeCm')) $('#sizeCm').value = (set.size / 10).toFixed(1);
+    $$('#boardPresets button').forEach(b => b.classList.toggle('on', Math.abs(boardFit(L, BOARDS.find(x => x.id === b.dataset.board)) - set.size) < 0.6));
+    $('#predict').innerHTML = predictionHtml(set);
   }
   // 見た目
-  $$('[data-bind]').forEach(inp => {
-    const v = d[inp.dataset.bind];
-    if (inp.type === 'checkbox') inp.checked = !!v; else if (document.activeElement !== inp) inp.value = v;
-  });
-  $$('[data-out]').forEach(o => { const v = d[o.dataset.out]; o.textContent = v ? `${(+v).toFixed(1)} mm` : 'なし'; });
   $$('#rimSwatches button').forEach(b => b.classList.toggle('on', b.dataset.rim === d.rimColor));
+  if (document.activeElement !== $('#rimRange')) $('#rimRange').value = d.rim;
+  $('#rimOut').textContent = d.rim > 0 ? `${d.rim.toFixed(1)} mm` : 'なし';
+  $('#cutChk').checked = !!d.cutLine;
   // 印刷
-  $$('.seg[data-seg] button').forEach(b => b.classList.toggle('on', b.dataset.v === String(d[b.closest('.seg').dataset.seg])));
+  $$('#paperSeg button').forEach(b => b.classList.toggle('on', b.dataset.v === d.paper));
   if (document.activeElement !== $('#calibInput')) $('#calibInput').value = calibOf(d.paper).toFixed(1);
-  const filled = d.pieces.filter(q => q.photo);
-  if (filled.length) {
-    const A = printable(d.paper);
-    const r = packSheets(filled.map(q => { const g = pieceGeom(q, d); return { w: g.W, h: g.H, ref: q }; }), A.w, A.h, SHEET_GAP);
-    $('#paperHint').textContent = `作った切り抜き ${filled.length}個 → ${PAPERS[d.paper].label} ${r.sheets.length}枚${r.tooBig.length ? `（${r.tooBig.map(q => PREF_NAMES[q.pref]).join('・')}は入りません）` : ''}`;
-  } else $('#paperHint').textContent = `${PAPERS[d.paper].label}（${PAPERS[d.paper].w}×${PAPERS[d.paper].h}mm）に、切り抜きをまとめて並べます。`;
+  const refs = filledRefs();
+  if (refs.length) {
+    const r = packFor(refs);
+    $('#paperHint').textContent = `写真を入れた県 ${refs.length}個 → ${PAPERS[d.paper].label} ${r.sheets.length}枚${r.tooBig.length ? `（${[...new Set(r.tooBig.map(x => PREF_NAMES[x.pref]))].join('・')}は入りません）` : ''}`;
+  } else $('#paperHint').textContent = `写真を入れた県を、${PAPERS[d.paper].label}（${PAPERS[d.paper].w}×${PAPERS[d.paper].h}mm）にまとめて並べます。`;
   // タブ
   $$('#nav button').forEach(b => b.classList.toggle('on', b.dataset.panel === activePanel));
   $$('.panel section').forEach(s => s.classList.toggle('active', s.dataset.sec === activePanel));
@@ -1391,36 +1389,36 @@ function updatePanels() {
 }
 $$('.panel h2').forEach(h => h.insertAdjacentHTML('beforeend', '<button class="btn small sheet-done" data-close-panel>完了</button>'));
 $('#panel').addEventListener('click', e => {
+  const d = state.doc, set = curSet();
   if (e.target.closest('[data-close-panel]')) { activePanel = null; updatePanels(); return; }
-  const seg = e.target.closest('.seg[data-seg] button');
-  if (seg) { state.doc[seg.closest('.seg').dataset.seg] = seg.dataset.v; changed(); return; }
+  const paper = e.target.closest('#paperSeg button');
+  if (paper) { d.paper = paper.dataset.v; changed(); return; }
   const board = e.target.closest('[data-board]');
-  if (board) { state.doc.mapWidth = Math.round(boardWidth(BOARDS.find(b => b.id === board.dataset.board)) * 10) / 10; changed(); return; }
+  if (board && set) { set.size = round1(boardFit(layoutOf(set.prefs), BOARDS.find(b => b.id === board.dataset.board))); changed(); return; }
   const rim = e.target.closest('[data-rim]');
-  if (rim) { state.doc.rimColor = rim.dataset.rim; changed(); return; }
-  const mode = e.target.closest('#modeSeg button');
-  if (mode) { setMode(mode.dataset.v); return; }
-  if (e.target.closest('#bigFill')) { const p = curPiece(); if (p) { p.size = bigMax(p); pieceChanged(p); } }
+  if (rim) { d.rimColor = rim.dataset.rim; changed(); return; }
+  if (e.target.closest('#repickBtn') && set) { startPick(set); return; }
+  const del = e.target.closest('#delSetBtn');
+  if (del && set) armButton(del, 'もう一度押すと削除', () => {
+    state.doc.sets = state.doc.sets.filter(s => s.id !== set.id);
+    thumbCache.delete(set.id);
+    ui.set = null;
+    changed();
+    toast(`${set.name}を削除しました（戻るで元に戻せます）`);
+  });
 });
-function pieceChanged(p) { if (ui.draft === p) { render(); updatePanels(); } else changed(); }
 $('#panel').addEventListener('input', e => {
-  const t = e.target, d = state.doc, p = curPiece();
-  if (t.id === 'mapRange') { d.mapWidth = Math.round(sliderToWidth(+t.value) * 10) / 10; changed(); return; }
-  if (t.id === 'mapCm') { const v = parseFloat(t.value); if (v >= MAP_MIN / 10 && v <= MAP_MAX / 10) { d.mapWidth = Math.round(v * 100) / 10; changed(); } return; }
-  if (t.id === 'bigRange' && p) { p.size = +t.value; pieceChanged(p); return; }
-  if (t.id === 'islandChk' && p) { p.islands = t.checked; if (p.mode === 'big') p.size = Math.min(p.size, bigMax(p)); pieceChanged(p); return; }
-  if (t.id === 'captionInput' && p) { p.caption = t.value; pieceChanged(p); return; }
+  const t = e.target, d = state.doc, set = curSet();
+  if (t.id === 'sizeRange' && set) { set.size = round1(sliderToSize(+t.value)); changed(); return; }
+  if (t.id === 'sizeCm' && set) { const v = parseFloat(t.value); if (v >= SIZE_MIN / 10 && v <= SIZE_MAX / 10) { set.size = round1(v * 10); changed(); } return; }
+  if (t.id === 'rimRange') { d.rim = +t.value; changed(); return; }
+  if (t.id === 'cutChk') { d.cutLine = t.checked; changed(); return; }
   if (t.id === 'calibInput') {
     const v = parseFloat(t.value);
-    if (v >= 25 && v <= 35) { localSettings.calib = { ...(localSettings.calib || {}), [d.paper]: Math.round(v * 10) / 10 }; saveLocal(); }
-    return;
+    if (v >= 25 && v <= 35) { localSettings.calib = { ...(localSettings.calib || {}), [d.paper]: round1(v) }; saveLocal(); updatePanels(); }
   }
-  const k = t.dataset.bind;
-  if (!k) return;
-  d[k] = t.type === 'checkbox' ? t.checked : +t.value;
-  changed();
 });
-$('#panel').addEventListener('change', e => { if (e.target.id === 'mapCm' || e.target.id === 'calibInput') updatePanels(); });
+$('#panel').addEventListener('change', e => { if (e.target.id === 'sizeCm' || e.target.id === 'calibInput') updatePanels(); });
 $('#nav').addEventListener('click', e => {
   const b = e.target.closest('[data-panel]');
   if (!b) return;
@@ -1464,7 +1462,8 @@ function travel(from, to) {
   to.push(histSnap);
   state.doc = JSON.parse(from.pop());
   histSnap = snapshot();
-  if (ui.draft) ui.draft = null;
+  if (ui.view === 'pick') { ui.view = 'set'; ui.pick = null; ui.pickFor = null; }
+  ui.chooser = false;
   render(); updatePanels(); updateHistoryButtons();
   scheduleSessionSave();
 }
@@ -1535,15 +1534,17 @@ function clearStore() {
   savedInfo = null;
 }
 function loadDoc(doc) {
-  state.doc = { ...structuredClone(DEFAULT_DOC), ...doc };
+  state.doc = { ...structuredClone(DEFAULT_DOC), ...migrate(doc) };
   undoStack.length = 0; redoStack.length = 0;
   histSnap = snapshot();
-  ui.view = 'map'; ui.cur = null; ui.draft = null; ui.sel = -1;
+  Object.assign(ui, { set: null, view: 'set', pref: -1, sel: -1, chooser: false, pick: null, pickFor: null });
+  mapView.key = '';
   render(); updatePanels(); updateHistoryButtons();
 }
+const usedPhotos = doc => new Set(doc.sets.flatMap(s => Object.values(s.slots).map(x => x.photo)));
 // 保存しておいた写真を読み戻す（使われていない写真は消す）
 async function restorePhotos() {
-  const used = new Set(state.doc.pieces.map(p => p.photo).filter(Boolean));
+  const used = usedPhotos(state.doc);
   for (const id of await fileStore.keys()) {
     if (!used.has(id)) { fileStore.delete(id); continue; }
     if (photos.has(id)) continue;
@@ -1644,15 +1645,28 @@ $('#appVersion').textContent = `バージョン ${APP_VERSION}`;
 document.addEventListener('keydown', e => {
   if (!splash.classList.contains('hide')) { if (e.key === 'Escape' && sessionActive) hideSplash(); return; }
   if (!$('#exportModal').hidden) { if (e.key === 'Escape') closeModal(); return; }
-  const typing = /^(INPUT|SELECT|TEXTAREA)$/.test(document.activeElement && document.activeElement.tagName) && document.activeElement.type !== 'range' && document.activeElement.type !== 'checkbox';
+  const a = document.activeElement;
+  const typing = a && /^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName) && a.type !== 'range' && a.type !== 'checkbox';
   if ((e.metaKey || e.ctrlKey) && (e.key === 'z' || e.key === 'Z') && !typing) { e.preventDefault(); e.shiftKey ? redo() : undo(); return; }
   if ((e.metaKey || e.ctrlKey) && (e.key === 'y' || e.key === 'Y') && !typing) { e.preventDefault(); redo(); return; }
-  if (e.key === 'Escape') { if (activePanel) { activePanel = null; updatePanels(); } else if (ui.view === 'piece') backToMap(); }
+  if (e.key !== 'Escape') return;
+  if (activePanel) { activePanel = null; updatePanels(); }
+  else if (ui.chooser && state.doc.sets.length) { ui.chooser = false; render(); }
+  else if (ui.view === 'pick') endPick();
+  else if (ui.view === 'piece' && curSet() && curSet().prefs.length > 1) $('#backBtn').click();
 });
 
 /* =========================================================
- * 書き出し（切り抜きを用紙に並べて、印刷サイズの画像にする）
+ * 書き出し（写真を入れた県を用紙に並べて、印刷サイズの画像にする）
  * ======================================================= */
+function filledRefs(d = state.doc) {
+  const refs = [];
+  for (const set of d.sets) for (const pref of set.prefs) {
+    const slot = set.slots[pref], ph = slot && photos.get(slot.photo);
+    if (ph && ph.img) refs.push({ set, pref, slot });
+  }
+  return refs;
+}
 // JPEG(JFIF) に解像度情報を書き込む（印刷時に正しいサイズで扱われるように）
 async function withDpi(blob, dpi) {
   const buf = new Uint8Array(await blob.arrayBuffer());
@@ -1715,19 +1729,19 @@ function exportPixels(paper) {
   return { w, h, dpi };
 }
 const canvasToBlob = (c, type, q) => new Promise((res, rej) => c.toBlob(b => b ? res(b) : rej(new Error('toBlob')), type, q));
-// 用紙の下に入れる目盛り（3cm）と縮尺のメモ
-function drawRuler(x, P, cal, d, hasMap) {
+const CANVAS_FONT = '"Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", "Meiryo", system-ui, sans-serif';
+// 用紙の下に入れる目盛り（3cm）
+function drawRuler(x, P, cal) {
   const y0 = P.h - SHEET_FOOT + 2.2, x0 = SHEET_MARGIN, L = 30 * cal;
   x.save();
   x.strokeStyle = '#8C868A'; x.fillStyle = '#8C868A'; x.lineWidth = 0.15; x.lineCap = 'butt';
   x.beginPath(); x.moveTo(x0, y0); x.lineTo(x0 + L, y0);
   for (let i = 0; i <= 30; i++) { const t = i % 10 === 0 ? 2.6 : i % 5 === 0 ? 1.8 : 1.1; x.moveTo(x0 + i * cal, y0); x.lineTo(x0 + i * cal, y0 + t); }
   x.stroke();
+  // 文字は 10 倍の大きさで描いて縮める（小さいフォントの描画が粗くならないように）
   const txt = (s, tx, ty, size, align = 'left') => { x.save(); x.translate(tx, ty); x.scale(0.1, 0.1); x.font = `600 ${size * 10}px ${CANVAS_FONT}`; x.textAlign = align; x.textBaseline = 'top'; x.fillText(s, 0, 0); x.restore(); };
   for (let i = 0; i <= 3; i++) txt(i === 3 ? '3cm' : String(i), x0 + i * 10 * cal, y0 + 2.9, 1.7, 'center');
-  const k = mapK(d);
-  const note = `${hasMap ? `地図サイズ 縮尺1/${Math.round(1e6 / k / 1e4).toLocaleString()}万（日本地図 横${fmtLen(d.mapWidth)}）・ ` : ''}目盛りが3cmなら実寸 ・ Tabitica`;
-  txt(note, x0 + L + 3, y0 + 0.4, 1.8);
+  txt('目盛りが3cmなら実寸 ・ Tabitica', x0 + L + 3, y0 + 0.4, 1.8);
   x.restore();
 }
 async function renderSheet(items, d) {
@@ -1737,21 +1751,21 @@ async function renderSheet(items, d) {
   const x = c.getContext('2d');
   x.setTransform(px.w / P.w, 0, 0, px.h / P.h, 0, 0);
   x.fillStyle = '#ffffff'; x.fillRect(0, 0, P.w, P.h);
-  let lowres = [];
+  const lowres = [];
   for (const it of items) {
-    const p = it.ref, g = pieceGeom(p, d), ph = photos.get(p.photo);
+    const { set, pref, slot } = it.ref, g = pieceGeom(set, pref), ph = photos.get(slot.photo);
     let bmp = null;
     try { bmp = await createImageBitmap(ph.blob); } catch (_) { bmp = ph.img; }
     x.save();
     x.translate(SHEET_MARGIN + it.x, SHEET_MARGIN + it.y);
     if (it.rot) { x.translate(it.w, 0); x.rotate(Math.PI / 2); }
     x.scale(cal, cal);
-    drawPiece(x, p, g, bmp, d);
+    drawPiece(x, slot, g, bmp, d);
     x.restore();
-    if (photoDpi(p, g) < LOW_DPI) lowres.push(p);
+    if (photoDpi(slot, g) < LOW_DPI) lowres.push(pref);
     if (bmp && bmp !== ph.img && bmp.close) bmp.close();
   }
-  drawRuler(x, P, cal, d, items.some(it => it.ref.mode === 'map'));
+  drawRuler(x, P, cal);
   let blob = await canvasToBlob(c, 'image/jpeg', 0.95);
   c.width = c.height = 0;
   blob = await withDpi(blob, px.dpi);
@@ -1760,11 +1774,10 @@ async function renderSheet(items, d) {
 let lastExport = null;
 async function doExport() {
   const d = state.doc;
-  await Promise.all(d.pieces.map(p => photos.get(p.photo) && photos.get(p.photo).ready));
-  const pieces = d.pieces.filter(p => photos.get(p.photo) && photos.get(p.photo).img);
-  if (!pieces.length) { toast('まず地図の県をタップして、写真を入れてください'); return; }
-  const A = printable(d.paper), cal = 30 / calibOf(d.paper);
-  const packed = packSheets(pieces.map(p => { const g = pieceGeom(p, d); return { w: g.W * cal, h: g.H * cal, ref: p }; }), A.w, A.h, SHEET_GAP);
+  await Promise.all([...photos.values()].map(p => p.ready));
+  const refs = filledRefs(d);
+  if (!refs.length) { toast('まず県をタップして、写真を入れてください'); return; }
+  const packed = packFor(refs, d);
   if (!packed.sheets.length) { toast(`${PAPERS[d.paper].label}に入る切り抜きがありません。大きい用紙を選んでください`, { error: true, duration: 4000 }); return; }
   openModal();
   const progress = k => setModal(`<div class="result-img-wrap"><div class="spinner"></div></div><div class="result-meta">画像を作成しています…${packed.sheets.length > 1 ? `（${k} / ${packed.sheets.length}）` : ''}</div>`, '');
@@ -1777,12 +1790,12 @@ async function doExport() {
     for (let k = 0; k < packed.sheets.length; k++) {
       progress(k + 1);
       const r = await renderSheet(packed.sheets[k], d);
-      r.lowres.forEach(p => low.add(PREF_NAMES[p.pref]));
+      r.lowres.forEach(i => low.add(PREF_NAMES[i]));
       const name = packed.sheets.length > 1 ? `tabitica_${stamp}_${k + 1}.jpg` : `tabitica_${stamp}.jpg`;
       items.push({ ...r, name, url: URL.createObjectURL(r.blob) });
     }
     const warns = [];
-    if (packed.tooBig.length) warns.push(`${packed.tooBig.map(p => PREF_NAMES[p.pref] + (p.mode === 'big' ? '（大きめ）' : '')).join('・')}は${PAPERS[d.paper].label}に入らないので書き出していません。大きい用紙を選ぶか、大きさを小さくしてください。`);
+    if (packed.tooBig.length) warns.push(`${[...new Set(packed.tooBig.map(r => PREF_NAMES[r.pref]))].join('・')}は${PAPERS[d.paper].label}に入らないので書き出していません。大きい用紙を選ぶか、大きさを小さくしてください。`);
     if (low.size) warns.push(`${[...low].join('・')}の写真は拡大しすぎで、印刷が粗くなるかもしれません。`);
     lastExport = { items, stamp };
     const files = items.map(it => new File([it.blob], it.name, { type: 'image/jpeg' }));
@@ -1800,12 +1813,12 @@ async function doExport() {
          <div class="result-meta">${P.label} ${items.length}枚 ・ ${items[0].px.dpi} dpi ・ 合計 ${(total / 1024 / 1024).toFixed(1)} MB</div>`;
     setModal(`${body}
       ${warns.map(w => `<div class="warn-box">${icon('alert')}<div>${escapeHtml(w)}</div></div>`).join('')}
-      <div class="note">コンビニなどで${P.label}で印刷してください。用紙の下の目盛りが 3cm になっているか確かめると安心です。${items.length > 1 ? '「すべて保存」は ZIP ファイルにまとめて保存します。' : 'スマートフォンでは画像を長押しして「写真に保存」することもできます。'}</div>`,
+      <div class="note">${P.label}で、拡大・縮小しない設定で印刷してください。用紙の下の目盛りが 3cm になっているか確かめると安心です。${items.length > 1 ? '「すべて保存」は ZIP ファイルにまとめて保存します。' : 'スマートフォンでは画像を長押しして「写真に保存」することもできます。'}</div>`,
       `${canShare ? `<button class="btn" data-act="share">${icon('share')}共有・保存</button>` : ''}
        <button class="btn primary" data-act="download">${icon('download')}${items.length > 1 ? 'すべて保存' : 'ダウンロード'}</button>`);
   } catch (err) {
     console.error(err);
-    setModal(`<div class="warn-box">${icon('alert')}<div>書き出しに失敗しました。切り抜きの数を減らすか、小さい用紙で試してください。</div></div>`, `<button class="btn" data-close>閉じる</button>`);
+    setModal(`<div class="warn-box">${icon('alert')}<div>書き出しに失敗しました。写真の数を減らすか、小さい用紙で試してください。</div></div>`, `<button class="btn" data-close>閉じる</button>`);
   }
 }
 async function saveFile(name, blob) {
@@ -1861,7 +1874,7 @@ updatePanels();
 commitNow();
 renderSplash();
 storeOp(['meta'], 'readonly', t => t.objectStore('meta').get('session')).then(s => {
-  savedInfo = s && s.doc && hasWorkIn(s.doc) ? s : null;
+  savedInfo = s && s.doc && hasWorkIn(migrate(s.doc)) ? { ...s, doc: { ...structuredClone(DEFAULT_DOC), ...migrate(s.doc) } } : null;
   if (!sessionActive) renderSplash();
 });
 checkUpdate();
